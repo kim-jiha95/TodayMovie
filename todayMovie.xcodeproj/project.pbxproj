@@ -13,6 +13,7 @@
 		9F6417EC2AED3CB0009C8C72 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F6417EA2AED3CB0009C8C72 /* Main.storyboard */; };
 		9F6417EF2AED3CB0009C8C72 /* todayMovie.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9F6417ED2AED3CB0009C8C72 /* todayMovie.xcdatamodeld */; };
 		9F6417F12AED3CB1009C8C72 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9F6417F02AED3CB1009C8C72 /* Assets.xcassets */; };
+		9F6418182AEEA650009C8C72 /* URLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6418172AEEA650009C8C72 /* URLSession.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		9F6417F52AED3CB1009C8C72 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F6417FA2AED3CB1009C8C72 /* todayMovieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = todayMovieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F6418042AED3CB1009C8C72 /* todayMovieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = todayMovieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F6418172AEEA650009C8C72 /* URLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSession.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +100,7 @@
 				9F6417F02AED3CB1009C8C72 /* Assets.xcassets */,
 				9F6417F52AED3CB1009C8C72 /* Info.plist */,
 				9F6417ED2AED3CB0009C8C72 /* todayMovie.xcdatamodeld */,
+				9F6418172AEEA650009C8C72 /* URLSession.swift */,
 			);
 			path = todayMovie;
 			sourceTree = "<group>";
@@ -234,6 +237,7 @@
 			files = (
 				9F6417EF2AED3CB0009C8C72 /* todayMovie.xcdatamodeld in Sources */,
 				9F6417E92AED3CB0009C8C72 /* ViewController.swift in Sources */,
+				9F6418182AEEA650009C8C72 /* URLSession.swift in Sources */,
 				9F6417E52AED3CB0009C8C72 /* AppDelegate.swift in Sources */,
 				9F6417E72AED3CB0009C8C72 /* SceneDelegate.swift in Sources */,
 			);
