@@ -26,17 +26,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let tableView = UITableView()
         view.backgroundColor = .white
         view.addSubview(fetchDataButton)
         fetchDataButton.frame = CGRect(x: 100, y: 400, width: 200, height: 40)
         
-//        tableView.frame = view.bounds
-//             tableView.dataSource = self
-//             tableView.delegate = self
-//             tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-//             view.addSubview(tableView)
-
     }
 
     @objc func fetchDataButtonPressed() {
@@ -74,13 +67,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             return movies.count
         }
 
-//        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//            let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-//            let movie = movies[indexPath.row]
-//            cell.textLabel?.text = movie.title
-//
-//            return cell
-//        }
     @objc(tableView:cellForRowAtIndexPath:)
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
          let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
