@@ -33,10 +33,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     @objc func fetchDataButtonPressed() {
-        fetchData()
+        todayMovie.fetchData()
     }
 
-    func fetchData() {
+    private func fetchData(_ result: Result<TodayMovie, NetworkManagerError>) {
         let configuration = URLSessionConfiguration.default
         let session = URLSession(configuration: configuration)
         let tmdbAPIKey = "e3269631c1a855227a37cefab44ad995"
@@ -61,6 +61,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
 
         task.resume()
+        
+        switch result {
+        case .success(_): break
+                  // something to do in success case...
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        AlertManager.showErrorAlert(in: self, "박스오피스", error)
+                    }
+                }
+
     }
 
     @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
