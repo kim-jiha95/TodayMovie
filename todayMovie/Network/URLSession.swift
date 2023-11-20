@@ -7,6 +7,13 @@
 
 import Foundation
 
+/// request
+/// task
+/// response
+/// 
+/// configuration
+/// session
+
 /// Network 통신을 담당하는 객체
 ///
 /// <CS 기초 지식> -> 도 알아야한다.
