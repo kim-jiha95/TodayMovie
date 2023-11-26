@@ -42,7 +42,9 @@ struct NetworkClient {
         do {
             let urlRequest = try endpoint.asURLRequest()
             
-            let dataTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
+            let customURLSession = URLSession(configuration: .default)
+
+            let dataTask = customURLSession.dataTask(with: urlRequest) { data, response, error in
                 guard let data else { 
                     completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
                     return
@@ -52,7 +54,7 @@ struct NetworkClient {
                     completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
                     return
                 }
-                
+               
                 guard 
                     let response = response as? HTTPURLResponse,
                     200..<300 ~= response.statusCode
