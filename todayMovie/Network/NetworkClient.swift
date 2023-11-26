@@ -41,40 +41,58 @@ struct NetworkClient {
     ) {
         do {
             let urlRequest = try endpoint.asURLRequest()
-            
-            let customURLSession = URLSession(configuration: .default)
+            performRequest(with: urlRequest, completionHandler: completionHandler)
+        } catch {
+            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
 
-            let dataTask = customURLSession.dataTask(with: urlRequest) { data, response, error in
-                guard let data else { 
-                    completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-                    return
-                }
-                
-                guard error == nil else {
-                    completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-                    return
-                }
-               
-                guard 
-                    let response = response as? HTTPURLResponse,
-                    200..<300 ~= response.statusCode
-                else {
-                    completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-                    return
-                }
-                
-                guard let model = try? JSONDecoder().decode(Model.self, from: data) else {
-                    completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-                    return
-                }
-                
-                completionHandler(.success(model))
-            }
         }
-        catch {
+    }
+
+    private func performRequest(
+        with urlRequest: URLRequest,
+        completionHandler: @escaping (Result<Model, Error>) -> Void
+    ) {
+        let customURLSession = URLSession(configuration: .default)
+
+        let dataTask = customURLSession.dataTask(with: urlRequest) { data, response, error in
+            handleResponse(data: data, response: response, error: error, completionHandler: completionHandler)
+        }
+
+        dataTask.resume()
+    }
+
+    private func handleResponse(
+        data: Data?,
+        response: URLResponse?,
+        error: Error?,
+        completionHandler: @escaping (Result<Model, Error>) -> Void
+    ) {
+        guard let data = data else {
+            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
+
+            return
+        }
+
+        guard error == nil else {
+            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
+
+            return
+        }
+
+        guard let response = response as? HTTPURLResponse, 200..<300 ~= response.statusCode else {
+            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
+
+            return
+        }
+
+        do {
+            let model = try JSONDecoder().decode(Model.self, from: data)
+            completionHandler(.success(model))
+        } catch {
             completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
         }
     }
+
 }
 
 //let property = networkResult
