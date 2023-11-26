@@ -94,17 +94,3 @@ struct NetworkClient {
     }
 
 }
-
-//let property = networkResult
-//network.request(
-//    endpoint: Endpoint.Home.initialize,
-//    // result라는 아이를 가지고 어떤 행동을 할 지를 정의하는 함수
-//    completionHandler: { result in
-//        switch result {
-//        case .success:
-//            // ...
-//        case .failure:
-//            // ...
-//        }
-//    }
-//)
