@@ -7,90 +7,102 @@
 
 import Foundation
 
-struct Model: Decodable { }
+
+/// 비동기 처리
+/// 
+/// `completionHandler`: (closure - callback) -> 가장 기초적인 비동기 처리 방식
+/// `GCD or Operation Queue`
+/// 
+/// `RxSwift / Combine`: 함수형 프로그래밍 방식
+///     `RxSwift`: 써드파티에서 만든 오래된 프레임워크
+///     `Combine`: 애플에서 만든 RxSwift랑 같은 기능을 하는 프레임워크
+///     
+/// `async/await`: 애플에서 만든 최신 비동기 처리 방식
+/// 
+/// GCD, completionHandler -> async/await 정석
+/// 요즘은 거의 async/await를 사용하는데,
+/// 면접에서 GCD, completionHandler 물어볼 수도 있고, 
+/// 아직은 RxSwift를 많이 쓰고있더든요?
+/// 좋아서는 아니고, 이미 개발되어있는 아이들 변경할 시간이 없어서
+/// 결국에는 다 할 줄 알아야 취직이 되기 쉬운데,
+/// 일단은 completionHandler 얘부터 해야한다.
+
+struct Model1: Decodable { }
+struct Model2: Decodable { }
+struct Model3: Decodable { }
+struct Model4: Decodable { }
+struct Model5: Decodable { }
+struct Model6: Decodable { }
+
+/// 네트워크를 요청할 때 쓰는 아이
+/// 
+/// 어떤 상황에서는 네트워크 요청을 실제로 안하고 싶을 수도 있고,
+/// timeInterval같은거를 조절하고 싶을 수도 있고 (60초 -> 10초)
+/// 
+/// url session을 변경할 수 있으면 좋잖아요?
+/// parameter로 사용할 session을 주던가
+/// initialize하는 시점에
+/// 
+/// 동작과 역할분리는 어느정도는 된 상태
+/// 완벽하지는 않아요.
 
 struct NetworkClient {
-    /// 비동기 처리
-    /// 
-    /// `completionHandler`: (closure - callback) -> 가장 기초적인 비동기 처리 방식
-    /// 
-    /// `RxSwift / Combine`: 함수형 프로그래밍 방식
-    ///     `RxSwift`: 써드파티에서 만든 오래된 프레임워크
-    ///     `Combine`: 애플에서 만든 RxSwift랑 같은 기능을 하는 프레임워크
-    /// `async/await`: 애플에서 만든 최신 비동기 처리 방식
-    /// 
-    /// 
-    /// 
-    /// /// 네트워크 요청 0.1~2초
-    /// 유저가 터치하는
-    /// 이 동안 화면은 멈추면 안되겠죠?
-    /// 홈으로 들어갔는데, 홈의 API가 끝나기 전에, 세팅으로 가고 싶어요
-    /// 숙제1: completionHandler: 
-    ///     ios main thread 동작 -> UI는 메인쓰레드에서 돈다
-    ///     ios callback closure를 사용하는 이유
-    /// 숙제2: request함수는 큰 문제가 하나 있어요
-    ///     그 문제를 찾아내고 수정하시오
-    /// 숙제3: 하나의 함수가 너무 길어요.
-    ///     어떻게 해야할까요?
-    /// 숙제4: URLSession.shared를 사용하고 있는데, 
-    ///     shared가 아닌 직접 만든 URLSession을 사용하도록 수정
-    /// 숙제5: 위 숙제들 다 했으면 viewcontroller에서 todayMovie를 이 함수로 받아오도록 수정하기
-    func request(
+    
+    private let urlSession: URLSession
+    
+    init(urlSession: URLSession = .shared) {
+        self.urlSession = urlSession
+    }
+    
+    func request<T: Decodable>(
         endpoint: URLRequestConfigurable,
-        completionHandler: @escaping (Result<Model, Error>) -> Void
+        for type: T.Type,
+        completionHandler: @escaping (Result<T, Error>) -> Void
     ) {
         do {
             let urlRequest = try endpoint.asURLRequest()
-            performRequest(with: urlRequest, completionHandler: completionHandler)
+
+            /// 버튼이 눌리는건 UI니까 Main Thread -> request -> dataTask
+            /// callback이 실행되는 thread는 백그라운드 쓰레드
+            let dataTask = urlSession.dataTask(with: urlRequest) { data, response, error in
+                guard let data = data else {
+                    completionHandler(.failure(NSError(domain: "1", code: 1)))
+                    return
+                }
+
+                guard error == nil else {
+                    completionHandler(.failure(NSError(domain: "2", code: 2)))
+                    return
+                }
+                
+                do {
+                    try validate(response: response)
+                }
+                catch {
+                    completionHandler(.failure(error))
+                }
+
+                do {
+                    let model = try JSONDecoder().decode(T.self, from: data)
+                    completionHandler(.success(model))
+                } catch {
+                    completionHandler(.failure(NSError(domain: "3", code: 3)))
+                }
+            }
+
+            dataTask.resume()
         } catch {
-            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-
+            completionHandler(.failure(NSError(domain: "4", code: 4)))
         }
     }
-
-    private func performRequest(
-        with urlRequest: URLRequest,
-        completionHandler: @escaping (Result<Model, Error>) -> Void
-    ) {
-        let customURLSession = URLSession(configuration: .default)
-
-        let dataTask = customURLSession.dataTask(with: urlRequest) { data, response, error in
-            handleResponse(data: data, response: response, error: error, completionHandler: completionHandler)
-        }
-
-        dataTask.resume()
-    }
-
-    private func handleResponse(
-        data: Data?,
-        response: URLResponse?,
-        error: Error?,
-        completionHandler: @escaping (Result<Model, Error>) -> Void
-    ) {
-        guard let data = data else {
-            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-
-            return
-        }
-
-        guard error == nil else {
-            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-
-            return
-        }
-
-        guard let response = response as? HTTPURLResponse, 200..<300 ~= response.statusCode else {
-            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
-
-            return
-        }
-
-        do {
-            let model = try JSONDecoder().decode(Model.self, from: data)
-            completionHandler(.success(model))
-        } catch {
-            completionHandler(.failure(JHNetworkError.endpointCongifureFailed))
+    
+    private func validate(response: URLResponse?) throws {
+        guard 
+            let response = response as? HTTPURLResponse, 
+            200..<300 ~= response.statusCode 
+        else {
+            print(response)
+            throw NSError(domain: "5", code: 5)
         }
     }
-
 }

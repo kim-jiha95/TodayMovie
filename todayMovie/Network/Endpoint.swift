@@ -19,54 +19,55 @@ protocol URLRequestConfigurable {
 
 struct Endpoint { }
 extension Endpoint {
-    enum Home {
-        case initialize(parameters: Parameters)
+    enum Movie {
+        case topRated(_ parameters: Parameters)
     }
 }
 
-extension Endpoint.Home: URLRequestConfigurable {
+extension Endpoint.Movie: URLRequestConfigurable {
     var urlString: String {
         switch self {
-        case .initialize: return "http:www.naver.com"
+        case .topRated: return "https://api.themoviedb.org/3/movie"
         }
     }
     
     var path: String? {
         switch self {
-        case .initialize: return "/home"
+        case .topRated: return "/top_rated"
         }
     }
     
     var method: HTTPMethod {
         switch self {
-        case .initialize: return .get
+        case .topRated: return .get
         }
     }
     
     var headers: HTTPHeaders? {
         switch self {
-        case .initialize: return ["Content-Type": "application/json"]
+        case .topRated: return ["Content-Type": "application/json"]
         }
     }
     
     var encoder: ParameterEncodable {
         switch self {
-        case .initialize: return URLEncoding()
+        case .topRated: return URLEncoding()
         }
     }
     
-    func asURLRequest(parameters: Parameters) throws -> URLRequest {
+    func asURLRequest() throws -> URLRequest {
         guard var url: URL = URL(string: self.urlString) else { 
             throw JHNetworkError.invalidURLString 
         }
-        if let path { url.appendPathExtension(path) }
+        
+        if let path { url.append(path: path) }
         
         var urlRequest: URLRequest = .init(url: url)
         urlRequest.httpMethod = self.method.uppercasedValue
         urlRequest.allHTTPHeaderFields = self.headers
         
         switch self {
-        case let .initialize(parameters):
+        case let .topRated(parameters):
             let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
             return encodedRequest
         }
