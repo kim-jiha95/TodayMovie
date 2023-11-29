@@ -16,32 +16,39 @@ import UIKit
 /// 테이블 뷰 셀에 그 영화를 누르면, 영화의 디테일한 정보가 표시된다. -> 그 영화의 사진을 포함한 다른 정보들을 그냥 대충 그려주시면 될 것 같아요
 ///     API에서 사진을 어떻게 주는지 분석.
 ///     API에서 사진을 받아서 표시해주시면 될 것 같아요.
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    
-    @IBOutlet weak var tableView: UITableView!
+class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     private var movies: [Movie] = []
     private let networkClient = NetworkClient()
     
-    lazy var fetchDataButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Fetch Data", for: .normal)
-        button.backgroundColor = .blue
-        button.setTitleColor(.white, for: .normal)
-        // todo : self warning 고치면 Terminating app due to uncaught exception 'NSInvalidArgumentException
-        button.addTarget(self, action: #selector(fetchDataButtonPressed), for: .touchUpInside)
-        return button
-    }()
-    
+    private lazy var tableView: UITableView = {
+            let tableView = UITableView()
+            tableView.translatesAutoresizingMaskIntoConstraints = false
+            tableView.dataSource = self
+            tableView.delegate = self
+//            tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.cellId)
+            return tableView
+        }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        view.addSubview(fetchDataButton)
-        fetchDataButton.frame = CGRect(x: 100, y: 400, width: 200, height: 40)
+        fetchMovieData()
     }
+    
+    private func configureUI() {
+            view.addSubview(tableView)
+
+            NSLayoutConstraint.activate([
+                tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            ])
+        }
+
 
     @objc
-    func fetchDataButtonPressed() {
+    func fetchMovieData() {
         let parameters: Parameters = [
             "api_key": NetworkConstant.tmdbAPIKey,
             "language": "ko-KR",
@@ -59,8 +66,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     private func handle(result: Result<MovieData, Error>) {
         DispatchQueue.main.async {
             switch result {
-            case let .success(movieData): 
+            case let .success(movieData):
                 self.movies = movieData.results
+                self.configureUI()
+                self.tableView.reloadData()
             case .failure(let error):
                 print(error)
             }
@@ -68,6 +77,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(movies.count)
         return movies.count
     }
     
@@ -81,5 +91,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "ShowDetailSegue", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowDetailSegue",
+           let destinationVC = segue.destination as? MovieDetailViewController,
+           let selectedIndex = sender as? Int {
+            let selectedMovie = movies[selectedIndex]
+            destinationVC.movie = selectedMovie
+        }
     }
 }

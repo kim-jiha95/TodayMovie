@@ -19,8 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        let viewController = ViewController() 
-        window?.rootViewController = viewController
+        let MovieViewController = MovieViewController()
+        window?.rootViewController = MovieViewController
         window?.makeKeyAndVisible()
         return true
     }
