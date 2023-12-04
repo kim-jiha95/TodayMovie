@@ -32,7 +32,6 @@ final class MovieViewController: UIViewController {
         super.viewDidLoad()
         configureUI()
         fetchMovieData()
-        print("test")
     }
     
     private func configureUI() {
