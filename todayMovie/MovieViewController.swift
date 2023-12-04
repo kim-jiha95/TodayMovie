@@ -16,7 +16,7 @@ import UIKit
 /// 테이블 뷰 셀에 그 영화를 누르면, 영화의 디테일한 정보가 표시된다. -> 그 영화의 사진을 포함한 다른 정보들을 그냥 대충 그려주시면 될 것 같아요
 ///     API에서 사진을 어떻게 주는지 분석.
 ///     API에서 사진을 받아서 표시해주시면 될 것 같아요.
-class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MovieViewController: UIViewController {
     
     private var movies: [Movie] = []
     private let networkClient = NetworkClient()
@@ -24,15 +24,13 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
     private lazy var tableView: UITableView = {
             let tableView = UITableView()
             tableView.translatesAutoresizingMaskIntoConstraints = false
-            tableView.dataSource = self
-            tableView.delegate = self
-//            tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.cellId)
             return tableView
         }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+        configureUI()
         fetchMovieData()
     }
     
@@ -43,7 +41,12 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
                 tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 tableView.topAnchor.constraint(equalTo: view.topAnchor),
+                tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             ])
+        
+            tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.cellId)
+               tableView.dataSource = self
+               tableView.delegate = self
         }
 
 
@@ -68,37 +71,37 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
             switch result {
             case let .success(movieData):
                 self.movies = movieData.results
-                self.configureUI()
                 self.tableView.reloadData()
             case .failure(let error):
                 print(error)
             }
         }
     }
+}
+
+extension MovieViewController: UITableViewDataSource {
     
-    @objc func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("1")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: MovieCell.cellId, for: indexPath) as? MovieCell else {
+            return UITableViewCell()
+        }
+        let movie = movies[indexPath.row]
+        cell.textLabel?.text = "Rank: \(indexPath.row + 1), Title: \(movie.title), Popularity: \(movie.popularity)"
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         print(movies.count)
         return movies.count
     }
-    
-    @objc(tableView:cellForRowAtIndexPath:)
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let movie = movies[indexPath.row]
-        cell.textLabel?.text = "Rank: #, Title: \(movie.title), Popularity: \(movie.popularity)"
-        return cell
-    }
-    
+}
+
+extension MovieViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "ShowDetailSegue", sender: self)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ShowDetailSegue",
-           let destinationVC = segue.destination as? MovieDetailViewController,
-           let selectedIndex = sender as? Int {
-            let selectedMovie = movies[selectedIndex]
-            destinationVC.movie = selectedMovie
+            let selectedMovie = movies[indexPath.row]
+            let movieDetailViewController = MovieDetailViewController()
+            movieDetailViewController.movie = selectedMovie
+            navigationController?.pushViewController(movieDetailViewController, animated: true)
         }
-    }
 }
