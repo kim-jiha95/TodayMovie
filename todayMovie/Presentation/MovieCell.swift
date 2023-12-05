@@ -24,7 +24,14 @@ final class MovieCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("Error")
     }
-    
+    private lazy var posterView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        imageView.heightAnchor.constraint(equalToConstant: 110).isActive = true
+        imageView.backgroundColor = .darkGray
+        return imageView
+    }()
+
     // 이    타이틀
     // 미지  디스크립션
     private func configureUI() {
@@ -61,10 +68,14 @@ final class MovieCell: UITableViewCell {
     }
     
     func configure(with movie: Movie) {
+        posterView.setImage(with: movie.posterPath ?? "")
         // TODO: Image 처리
         // posterPath를 가지고 API를 찔러서 이미지 가져오기
         // image cache 에 대해 알아보고 구현하기
         titleLabel.text = movie.title
         descriptionLabel.text = "\(movie.popularity)"
+    }
+    func reset() {
+        ImageCacheManager.shared.cancelDownloadTask()
     }
 }

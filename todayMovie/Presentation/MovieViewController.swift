@@ -98,7 +98,7 @@ extension MovieViewController: UITableViewDataSource {
                 for: indexPath
             ) as? MovieCell 
         else { return UITableViewCell() }
-        let movie = movies[indexPath.row] // safe
+        let movie = movies[indexPath.row]
         cell.configure(with: movie)
         return cell
     }
@@ -111,7 +111,7 @@ extension MovieViewController: UITableViewDataSource {
 extension MovieViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedMovie = movies[indexPath.row] // safe
+        let selectedMovie = movies[indexPath.row]
         let movieDetailViewController = MovieDetailViewController(movie: selectedMovie)
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
