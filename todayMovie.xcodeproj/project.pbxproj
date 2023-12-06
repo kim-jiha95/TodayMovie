@@ -17,6 +17,7 @@
 		9F2BC2072AFF9F97002AC6E4 /* prepareforReuse_example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F2BC2062AFF9F97002AC6E4 /* prepareforReuse_example.swift */; };
 		9F3EB3F42B1F888100351D33 /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3EB3F32B1F888100351D33 /* ImageCacheManager.swift */; };
 		9F3EB3F82B1F8A2600351D33 /* UIImageView+extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3EB3F72B1F8A2600351D33 /* UIImageView+extension.swift */; };
+		9F5280642B20CDBC00631069 /* MovieDetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5280632B20CDBC00631069 /* MovieDetailCell.swift */; };
 		9F5FEF502B179C0C008D9DE8 /* MovieDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FEF4F2B179C0C008D9DE8 /* MovieDetailViewController.swift */; };
 		9F5FEF522B17A7C7008D9DE8 /* MovieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F5FEF512B17A7C7008D9DE8 /* MovieCell.swift */; };
 		9F6323712AFBDE1B00C712D8 /* solid_example.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6323702AFBDE1B00C712D8 /* solid_example.swift */; };
@@ -66,6 +67,7 @@
 		9F2BC2062AFF9F97002AC6E4 /* prepareforReuse_example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = prepareforReuse_example.swift; sourceTree = "<group>"; };
 		9F3EB3F32B1F888100351D33 /* ImageCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCacheManager.swift; sourceTree = "<group>"; };
 		9F3EB3F72B1F8A2600351D33 /* UIImageView+extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+extension.swift"; sourceTree = "<group>"; };
+		9F5280632B20CDBC00631069 /* MovieDetailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailCell.swift; sourceTree = "<group>"; };
 		9F5FEF4F2B179C0C008D9DE8 /* MovieDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailViewController.swift; sourceTree = "<group>"; };
 		9F5FEF512B17A7C7008D9DE8 /* MovieCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCell.swift; sourceTree = "<group>"; };
 		9F6323702AFBDE1B00C712D8 /* solid_example.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = solid_example.swift; sourceTree = "<group>"; };
@@ -126,13 +128,6 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		9F3EB3F52B1F89F600351D33 /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		9F3EB3F62B1F89FF00351D33 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -144,9 +139,8 @@
 		9F3EB3F92B1F8C0E00351D33 /* Presentation */ = {
 			isa = PBXGroup;
 			children = (
-				9F5FEF512B17A7C7008D9DE8 /* MovieCell.swift */,
-				9F6417E82AED3CB0009C8C72 /* MovieViewController.swift */,
-				9F5FEF4F2B179C0C008D9DE8 /* MovieDetailViewController.swift */,
+				9F5280622B20CD3000631069 /* Detail */,
+				9F5280612B20CD2600631069 /* List */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -158,6 +152,24 @@
 				9F6417E62AED3CB0009C8C72 /* SceneDelegate.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		9F5280612B20CD2600631069 /* List */ = {
+			isa = PBXGroup;
+			children = (
+				9F5FEF512B17A7C7008D9DE8 /* MovieCell.swift */,
+				9F6417E82AED3CB0009C8C72 /* MovieViewController.swift */,
+			);
+			path = List;
+			sourceTree = "<group>";
+		};
+		9F5280622B20CD3000631069 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				9F5280632B20CDBC00631069 /* MovieDetailCell.swift */,
+				9F5FEF4F2B179C0C008D9DE8 /* MovieDetailViewController.swift */,
+			);
+			path = Detail;
 			sourceTree = "<group>";
 		};
 		9F6417D82AED3CB0009C8C72 = {
@@ -184,7 +196,6 @@
 				9F3EB3FA2B1F8C4B00351D33 /* App */,
 				9F3EB3F92B1F8C0E00351D33 /* Presentation */,
 				9F3EB3F62B1F89FF00351D33 /* Extensions */,
-				9F3EB3F52B1F89F600351D33 /* New Group */,
 				9FBBF49F2B0A5817001F9477 /* Example */,
 				9FBBF48C2B0A515E001F9477 /* Error */,
 				033E64E72AF3C2370035DAAA /* Model */,
@@ -381,6 +392,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F5FEF522B17A7C7008D9DE8 /* MovieCell.swift in Sources */,
+				9F5280642B20CDBC00631069 /* MovieDetailCell.swift in Sources */,
 				9FBBF48E2B0A517D001F9477 /* NetworkManagerError.swift in Sources */,
 				9FBBF49C2B0A54A6001F9477 /* AlertManager.swift in Sources */,
 				9F6417EF2AED3CB0009C8C72 /* todayMovie.xcdatamodeld in Sources */,
