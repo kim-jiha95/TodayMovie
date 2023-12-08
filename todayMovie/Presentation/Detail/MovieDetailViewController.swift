@@ -51,7 +51,7 @@ final class MovieDetailViewController: UIViewController {
 
 extension MovieDetailViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
+        print(movie, "movie")
 //        return movie.genre_ids.count
         return 1
     }

@@ -104,6 +104,7 @@ extension MovieViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print(movies, "movie")
         return movies.count
     }
 }
