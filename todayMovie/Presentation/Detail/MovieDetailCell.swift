@@ -105,7 +105,7 @@ class MovieDetailCell: UITableViewCell {
         let v2Stack: UIStackView = .init()
         v2Stack.axis = .vertical
         v2Stack.distribution = .fill
-        v2Stack.spacing = 8
+        v2Stack.spacing = 5
         v2Stack.translatesAutoresizingMaskIntoConstraints = false
         
         imageStack.addSubview(mainImageStack)
