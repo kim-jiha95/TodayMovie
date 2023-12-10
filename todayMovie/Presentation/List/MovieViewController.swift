@@ -96,15 +96,15 @@ extension MovieViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: MovieCell.cellId, 
                 for: indexPath
-            ) as? MovieCell 
+            ) as? MovieCell
         else { return UITableViewCell() }
+        let briefRank = indexPath[1]
         let movie = movies[indexPath.row]
-        cell.configure(with: movie)
+        cell.configure(with: movie, briefRank: briefRank)
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(movies, "movie")
         return movies.count
     }
 }
