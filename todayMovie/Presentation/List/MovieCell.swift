@@ -10,12 +10,20 @@ import UIKit
 /// swift custom cell programmatically
 final class MovieCell: UITableViewCell {
     
-    static let cellId = "CellId" // protocol
+    static let cellId = "CellId" // 숙제8. protocol
     
-    private let thunbnailImageView: UIImageView = .init()
-    private let RankView: UITextView = .init()
+    private let thunbnailImageView: UIImageView = .init() // 요기에 넣어주세요 이미지
+    private let rankLabel: UILabel = {
+        let rankLabel: UILabel = .init()
+        rankLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        rankLabel.textColor = .black
+        rankLabel.textAlignment = .center
+        rankLabel.translatesAutoresizingMaskIntoConstraints = false
+        return rankLabel
+    }()
+    /// label을 정의한다.
+    /// font, textColor는 거의 무조건 정의가 필요해요.
     private let titleLabel: UILabel = .init()
-    private let rank: UILabel = .init()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
@@ -26,6 +34,15 @@ final class MovieCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        thunbnailImageView.image = .none
+        rankLabel.text = .none
+        titleLabel.text = .none
+        descriptionLabel.text = .none
+        ImageCacheManager.shared.cancelDownloadTask() // 숙제8. 얘도 고쳐주세요
     }
     
     required init?(coder: NSCoder) {
@@ -39,6 +56,8 @@ final class MovieCell: UITableViewCell {
         return imageView
     }()
 
+    /// cell에 property가 어디에 어떻게 놓일지에 대한
+    /// UI제약조건을 잡아주는 역할을 하는 함수
     private func configureUI() {
         let hStack: UIStackView = .init()
         hStack.axis = .horizontal
@@ -53,22 +72,17 @@ final class MovieCell: UITableViewCell {
         vStack.distribution = .fillEqually
         vStack.translatesAutoresizingMaskIntoConstraints = false
         
-        RankView.font = UIFont.boldSystemFont(ofSize: 18)
-        RankView.textColor = .black
-        RankView.textAlignment = .center
-        RankView.contentInset = UIEdgeInsets(top: 25, left: 0, bottom: 0, right: 0)
-
-        hStack.addArrangedSubview(RankView)
-        RankView.translatesAutoresizingMaskIntoConstraints = false
+        hStack.addArrangedSubview(rankLabel)
         hStack.addArrangedSubview(vStack)
         vStack.addArrangedSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         vStack.addArrangedSubview(descriptionLabel)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(hStack)
+        
         NSLayoutConstraint.activate([
-            RankView.widthAnchor.constraint(equalToConstant: 100),
-            RankView.heightAnchor.constraint(equalToConstant: 100),
+            rankLabel.widthAnchor.constraint(equalToConstant: 100),
+            rankLabel.heightAnchor.constraint(equalToConstant: 100),
             hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             hStack.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -76,16 +90,21 @@ final class MovieCell: UITableViewCell {
         ])
     }
     
+    
     func configure(with movie: Movie, briefRank: Int) {
-        posterView.setImage(with: movie.posterPath ?? "")
-        let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
-
         // image cache 에 대해 알아보고 구현하기
+        if let path = movie.posterPath {
+            posterView.setImage(with: path)
+        } else {
+//            posterView.setImage(with: defaultImage)
+        }
         titleLabel.text = movie.title
-        descriptionLabel.text = "평점: " + formattedVoteAverage
-        RankView.text = "\(briefRank + 1)" + "위"
+        descriptionLabel.text = "평점: " + movie.voteAverage.formatted
+        rankLabel.text = "\(briefRank + 1)" + "위" // 100,000위
+        // 숙제1. intrinsic contents size
     }
-    func reset() {
-        ImageCacheManager.shared.cancelDownloadTask()
-    }
+}
+
+fileprivate extension Double {
+    var formatted: String { return .init(format: "%.1f", self) }
 }

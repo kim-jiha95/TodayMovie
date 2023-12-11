@@ -16,7 +16,19 @@ import UIKit
 /// 테이블 뷰 셀에 그 영화를 누르면, 영화의 디테일한 정보가 표시된다. -> 그 영화의 사진을 포함한 다른 정보들을 그냥 대충 그려주시면 될 것 같아요
 ///     API에서 사진을 어떻게 주는지 분석.
 ///     API에서 사진을 받아서 표시해주시면 될 것 같아요.
-
+///     
+///     
+/// 12월 11일
+/// 숙제7 -> 메인
+/// 7-1. 스크롤을 밑으로 내렸을 경우,
+/// 20개에서 끝나지 않고, 계속 무한 스크롤링 되도록 해주세요.
+/// 
+/// 7-2. 순위 자리에  썸네일 이미지를 1:1로 넣어주시고,
+/// 처음 받아올 때 인디케이터 로딩
+/// 이후에는 캐싱되어서 로딩이 안걸리도록
+/// 
+/// 7-3. 맨 위에서 땅겼을 경우 리프레쉬 되도록
+///
 final class MovieViewController: UIViewController {
     
     private var movies: [Movie] = []
@@ -98,8 +110,11 @@ extension MovieViewController: UITableViewDataSource {
                 for: indexPath
             ) as? MovieCell
         else { return UITableViewCell() }
-        let briefRank = indexPath[1]
-        let movie = movies[indexPath.row]
+        // 1 = magic number, 다른 사람이 봤을 때 무엇을 의미하는지 모르는 숫자 or 문자 -> 지양
+        // 이럴 때는 주석을 쓰는게 좋다.
+        // 주석: 히스토리가 복잡하거나, 로직이 복잡하거나, 의도를 파악하기 힘들 거 같을 때
+        let briefRank = indexPath.row 
+        let movie = movies[indexPath.row] // safe casting
         cell.configure(with: movie, briefRank: briefRank)
         return cell
     }

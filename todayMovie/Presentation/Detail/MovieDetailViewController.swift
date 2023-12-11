@@ -9,6 +9,20 @@ import UIKit
 
 final class MovieDetailViewController: UIViewController {
     private let movie: Movie
+    
+    /// table view, scrollview + stackview, collection view
+    /// 
+    /// 1. scrollview + stackview
+    /// 컨텐츠의 내용이 반복적이지 않고, 양이 적고, 정적일 때
+    /// 
+    /// 2. table view
+    /// 컨텐츠가 반복적이거나, 양이 많거나, 동적으로 변할 때
+    /// 가로의 넓이가 화면 사이즈에 고정
+    /// 
+    /// 3. collection view
+    /// 넓이를 dynamic하게 설정
+    /// 
+    /// 숙제2. scrollview+stackview로 변경
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false

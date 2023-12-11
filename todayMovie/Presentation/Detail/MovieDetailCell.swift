@@ -7,8 +7,10 @@
 
 import UIKit
 
+// 1. final은 무조건 class앞에 붙여주세요
 class MovieDetailCell: UITableViewCell {
     static let cellId = "CellId2"
+    // 2. 프로퍼티를 설정할 때에도 private은 디폴트
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
@@ -49,7 +51,12 @@ class MovieDetailCell: UITableViewCell {
         return label
     }()
 
-    
+    /// lazy는 언제 왜 쓰나요?
+    /// 
+    /// lazy라는 아이는
+    /// memory에 이 프로퍼티가 올라갈 수도 있고, 안올라갈 수도 있는 아이.
+    /// 아니면 self를 참조해서 init시점이 아닌 dynamic하게 올라가는 아이.
+    /// 
     private lazy var posterImageView: UIImageView = {
         let view = UIImageView()
         view.heightAnchor.constraint(equalToConstant: 120).isActive = false
@@ -79,6 +86,12 @@ class MovieDetailCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    /// 스택뷰를 많이 쓴 이유?
+    /// HStack 하나,
+    /// VStack 하나
+    /// 만 있으면 돼요.
+    /// 
+    /// 숙제3: StackView Refactoring
     func setAutolayout() {
         let mainImageStack: UIStackView = .init()
         mainImageStack.axis = .horizontal
@@ -180,6 +193,7 @@ class MovieDetailCell: UITableViewCell {
         v2Stack.translatesAutoresizingMaskIntoConstraints = false
     }
     func transferData( _ movie: Movie) {
+        /// print는 release 버전에는 나가면 안돼요. 
         print(movie, "detail check")
         let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
         posterImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.posterPath ?? "") )
