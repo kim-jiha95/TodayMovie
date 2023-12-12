@@ -21,12 +21,24 @@ final class MovieDetailViewController: UIViewController {
     /// 
     /// 3. collection view
     /// 넓이를 dynamic하게 설정
-    /// 
-    /// 숙제2. scrollview+stackview로 변경
-    private let tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        return tableView
+    ///
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+    
+    private let movieDetailCell: MovieDetailCell = {
+        let cell = MovieDetailCell()
+        return cell
     }()
     
     init(movie: Movie) {
@@ -42,43 +54,29 @@ final class MovieDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         configureUI()
-        print(movie)
     }
     
     private func configureUI() {
         view.backgroundColor = .white
-        view.addSubview(tableView)
-        
+        view.addSubview(scrollView)
+        scrollView.addSubview(stackView)
+
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             // safeArea 생각해서 잡아주시면 좋을 듯
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+
         ])
-        
-        tableView.register(MovieDetailCell.self, forCellReuseIdentifier: MovieDetailCell.cellId)
-        tableView.dataSource = self
-        tableView.delegate = self
+        stackView.addArrangedSubview(movieDetailCell)
+        movieDetailCell.transferData(movie)
     }
 }
 
-extension MovieDetailViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(movie, "movie")
-//        return movie.genre_ids.count
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
-    {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MovieDetailCell.cellId, for: indexPath) as! MovieDetailCell
-        cell.transferData(movie)
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-}

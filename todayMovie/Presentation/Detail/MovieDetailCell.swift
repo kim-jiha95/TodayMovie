@@ -193,13 +193,11 @@ class MovieDetailCell: UITableViewCell {
         v2Stack.translatesAutoresizingMaskIntoConstraints = false
     }
     func transferData( _ movie: Movie) {
-        /// print는 release 버전에는 나가면 안돼요. 
-        print(movie, "detail check")
         let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
         posterImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.posterPath ?? "") )
-
+        
         backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? "") )
-
+        
         titleLabel.text = movie.title
         subTitleLabel.text = movie.original_title
         descriptionLabel.text = "\(movie.overview)"
