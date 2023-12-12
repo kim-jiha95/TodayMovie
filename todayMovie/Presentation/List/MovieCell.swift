@@ -79,10 +79,10 @@ final class MovieCell: UITableViewCell {
         vStack.addArrangedSubview(descriptionLabel)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(hStack)
-        
+        rankLabel.setContentHuggingPriority(.required, for: .horizontal)
+        rankLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
         NSLayoutConstraint.activate([
-            rankLabel.widthAnchor.constraint(equalToConstant: 100),
-            rankLabel.heightAnchor.constraint(equalToConstant: 100),
             hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             hStack.topAnchor.constraint(equalTo: contentView.topAnchor),
@@ -92,16 +92,15 @@ final class MovieCell: UITableViewCell {
     
     
     func configure(with movie: Movie, briefRank: Int) {
-        // image cache 에 대해 알아보고 구현하기
+        let defaultImage = "https://picsum.photos/100/100"
         if let path = movie.posterPath {
             posterView.setImage(with: path)
         } else {
-//            posterView.setImage(with: defaultImage)
+            posterView.setImage(with: defaultImage)
         }
         titleLabel.text = movie.title
         descriptionLabel.text = "평점: " + movie.voteAverage.formatted
-        rankLabel.text = "\(briefRank + 1)" + "위" // 100,000위
-        // 숙제1. intrinsic contents size
+        rankLabel.text = "\(briefRank + 1)" + "위"
     }
 }
 
