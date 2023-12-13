@@ -19,10 +19,6 @@ import UIKit
 ///     
 ///     
 /// 12월 11일
-/// 숙제7 -> 메인
-/// 7-1. 스크롤을 밑으로 내렸을 경우,
-/// 20개에서 끝나지 않고, 계속 무한 스크롤링 되도록 해주세요.
-/// 
 /// 7-2. 순위 자리에  썸네일 이미지를 1:1로 넣어주시고,
 /// 처음 받아올 때 인디케이터 로딩
 /// 이후에는 캐싱되어서 로딩이 안걸리도록
@@ -33,6 +29,7 @@ final class MovieViewController: UIViewController {
     
     private var movies: [Movie] = []
     private let networkClient = NetworkClient()
+    private var currentPage = 1
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -67,14 +64,36 @@ final class MovieViewController: UIViewController {
         let parameters: Parameters = [
             "api_key": NetworkConstant.tmdbAPIKey,
             "language": "ko-KR",
+            "page": "\(currentPage)",
             "append_to_response": "videos"
         ]
         
+        let newMovies: [Movie] = []
+        movies.append(contentsOf: newMovies)
+        tableView.reloadData()
+        currentPage += 1
+
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(parameters),
             for: MovieData.self
         ) { [weak self] result in
-            self?.handle(result: result)
+            guard let self = self else { return }
+            
+            switch result {
+            case let .success(movieData):
+                let newMovies = movieData.results
+                self.movies.append(contentsOf: newMovies)
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
+                self.currentPage += 1
+                
+            case let .failure(error):
+                /// 에러대응
+                /// alert을 띄운다던가
+                ///  에러 뷰를 띄운다던가 (다시시도 버튼)
+                print(error)
+            }
         }
     }
     
@@ -122,6 +141,12 @@ extension MovieViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return movies.count
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+            if indexPath.row == movies.count - 1 {
+                fetchMovieData()
+            }
+        }
 }
 
 extension MovieViewController: UITableViewDelegate {
