@@ -22,14 +22,13 @@ import UIKit
 /// 7-2. 순위 자리에  썸네일 이미지를 1:1로 넣어주시고,
 /// 처음 받아올 때 인디케이터 로딩
 /// 이후에는 캐싱되어서 로딩이 안걸리도록
-/// 
-/// 7-3. 맨 위에서 땅겼을 경우 리프레쉬 되도록
 ///
 final class MovieViewController: UIViewController {
     
     private var movies: [Movie] = []
     private let networkClient = NetworkClient()
     private var currentPage = 1
+    private let refreshControl = UIRefreshControl()
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -58,8 +57,16 @@ final class MovieViewController: UIViewController {
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.cellId)
         tableView.dataSource = self
         tableView.delegate = self
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        tableView.refreshControl = refreshControl
     }
     
+    @objc private func handleRefresh() {
+        currentPage = 1
+        movies.removeAll()
+        fetchMovieData()
+    }
+
     func fetchMovieData() {
         let parameters: Parameters = [
             "api_key": NetworkConstant.tmdbAPIKey,
@@ -82,16 +89,21 @@ final class MovieViewController: UIViewController {
             switch result {
             case let .success(movieData):
                 let newMovies = movieData.results
-                self.movies.append(contentsOf: newMovies)
+                
+                if self.currentPage == 1 {
+                    self.movies = newMovies
+                } else {
+                    self.movies.append(contentsOf: newMovies)
+                }
+            
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
                 }
+                
                 self.currentPage += 1
                 
             case let .failure(error):
-                /// 에러대응
-                /// alert을 띄운다던가
-                ///  에러 뷰를 띄운다던가 (다시시도 버튼)
                 print(error)
             }
         }
