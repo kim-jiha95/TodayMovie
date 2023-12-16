@@ -7,7 +7,6 @@
 
 import UIKit
 
-/// swift custom cell programmatically
 final class MovieCell: UITableViewCell {
     
     static let cellId = "CellId" // 숙제8. protocol
