@@ -12,7 +12,12 @@ final class MovieCell: UITableViewCell {
     
     static let cellId = "CellId" // 숙제8. protocol
     
-    private let thunbnailImageView: UIImageView = .init() // 요기에 넣어주세요 이미지
+    private let thunbnailImageView: UIImageView = {
+        let view = UIImageView()
+        view.heightAnchor.constraint(equalToConstant: 100).isActive = false
+        view.widthAnchor.constraint(equalToConstant: 100).isActive = false
+        return view
+    }()
     private let rankLabel: UILabel = {
         let rankLabel: UILabel = .init()
         rankLabel.font = UIFont.boldSystemFont(ofSize: 18)
@@ -21,8 +26,7 @@ final class MovieCell: UITableViewCell {
         rankLabel.translatesAutoresizingMaskIntoConstraints = false
         return rankLabel
     }()
-    /// label을 정의한다.
-    /// font, textColor는 거의 무조건 정의가 필요해요.
+  
     private let titleLabel: UILabel = .init()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
@@ -56,8 +60,6 @@ final class MovieCell: UITableViewCell {
         return imageView
     }()
 
-    /// cell에 property가 어디에 어떻게 놓일지에 대한
-    /// UI제약조건을 잡아주는 역할을 하는 함수
     private func configureUI() {
         let hStack: UIStackView = .init()
         hStack.axis = .horizontal
@@ -72,7 +74,8 @@ final class MovieCell: UITableViewCell {
         vStack.distribution = .fillEqually
         vStack.translatesAutoresizingMaskIntoConstraints = false
         
-        hStack.addArrangedSubview(rankLabel)
+//        hStack.addArrangedSubview(rankLabel)
+        hStack.addArrangedSubview(thunbnailImageView)
         hStack.addArrangedSubview(vStack)
         vStack.addArrangedSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -81,6 +84,9 @@ final class MovieCell: UITableViewCell {
         contentView.addSubview(hStack)
         rankLabel.setContentHuggingPriority(.required, for: .horizontal)
         rankLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        thunbnailImageView.setContentHuggingPriority(.required, for: .horizontal)
+        thunbnailImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         NSLayoutConstraint.activate([
             hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -88,19 +94,23 @@ final class MovieCell: UITableViewCell {
             hStack.topAnchor.constraint(equalTo: contentView.topAnchor),
             hStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         ])
+        
+        NSLayoutConstraint.activate([
+            thunbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
+            thunbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            thunbnailImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.2),
+            thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
+            thunbnailImageView.heightAnchor.constraint(equalToConstant: 150)
+            ])
+        thunbnailImageView.translatesAutoresizingMaskIntoConstraints = false
     }
     
     
     func configure(with movie: Movie, briefRank: Int) {
-        let defaultImage = "https://picsum.photos/100/100"
-        if let path = movie.posterPath {
-            posterView.setImage(with: path)
-        } else {
-            posterView.setImage(with: defaultImage)
-        }
         titleLabel.text = movie.title
         descriptionLabel.text = "평점: " + movie.voteAverage.formatted
         rankLabel.text = "\(briefRank + 1)" + "위"
+        thunbnailImageView.setImage(with: "https://image.tmdb.org/t/p/w200" + (movie.posterPath ?? ""))
     }
 }
 

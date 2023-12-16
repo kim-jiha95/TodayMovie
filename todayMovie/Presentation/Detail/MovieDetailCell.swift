@@ -7,57 +7,49 @@
 
 import UIKit
 
-// 1. final은 무조건 class앞에 붙여주세요
-class MovieDetailCell: UITableViewCell {
+final class MovieDetailCell: UITableViewCell {
     static let cellId = "CellId2"
-    // 2. 프로퍼티를 설정할 때에도 private은 디폴트
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .white
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
 
-    let subTitleLabel: UILabel = {
+    private let subTitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.font = UIFont.boldSystemFont(ofSize: 12)
         return label
     }()
-    let descriptionLabel: UILabel = {
+    private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.numberOfLines = 3
         label.font = UIFont.boldSystemFont(ofSize: 10)
         return label
     }()
-    let descriptionTitle: UILabel = {
+    private let descriptionTitle: UILabel = {
         let label = UILabel()
         label.textColor = .black
         label.font = UIFont.boldSystemFont(ofSize: 15)
         label.text = "줄거리"
         return label
     }()
-    let releaseDateLabel: UILabel = {
+    private let releaseDateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.font = UIFont.boldSystemFont(ofSize: 10)
         return label
     }()
-    let starLabel: UILabel = {
+    private let starLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
         label.font = UIFont.boldSystemFont(ofSize: 13)
         return label
     }()
 
-    /// lazy는 언제 왜 쓰나요?
-    /// 
-    /// lazy라는 아이는
-    /// memory에 이 프로퍼티가 올라갈 수도 있고, 안올라갈 수도 있는 아이.
-    /// 아니면 self를 참조해서 init시점이 아닌 dynamic하게 올라가는 아이.
-    /// 
-    private lazy var posterImageView: UIImageView = {
+    private var posterImageView: UIImageView = {
         let view = UIImageView()
         view.heightAnchor.constraint(equalToConstant: 120).isActive = false
         view.widthAnchor.constraint(equalToConstant: 120).isActive = false
@@ -66,7 +58,7 @@ class MovieDetailCell: UITableViewCell {
         return view
     }()
     
-    private lazy var backgroundImageView: UIImageView = {
+    private var backgroundImageView: UIImageView = {
         let view = UIImageView()
         view.heightAnchor.constraint(equalToConstant: 300).isActive = false
         view.widthAnchor.constraint(equalToConstant: 300).isActive = false
@@ -187,7 +179,6 @@ class MovieDetailCell: UITableViewCell {
             v2Stack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 310),
             v2Stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 100),
             v2Stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -100),
-//            v2Stack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -50),
             vStack.heightAnchor.constraint(equalToConstant: 150)
            ])
         v2Stack.translatesAutoresizingMaskIntoConstraints = false
