@@ -11,7 +11,7 @@ final class MovieDetailCell: UITableViewCell {
     static let cellId = "CellId2"
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .white
+        label.textColor = .black
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
@@ -48,15 +48,6 @@ final class MovieDetailCell: UITableViewCell {
         label.font = UIFont.boldSystemFont(ofSize: 13)
         return label
     }()
-
-    private var posterImageView: UIImageView = {
-        let view = UIImageView()
-        view.heightAnchor.constraint(equalToConstant: 120).isActive = false
-        view.widthAnchor.constraint(equalToConstant: 120).isActive = false
-        view.layer.cornerRadius = 15
-        view.clipsToBounds = true
-        return view
-    }()
     
     private var backgroundImageView: UIImageView = {
         let view = UIImageView()
@@ -78,25 +69,12 @@ final class MovieDetailCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    /// 스택뷰를 많이 쓴 이유?
-    /// HStack 하나,
-    /// VStack 하나
-    /// 만 있으면 돼요.
-    /// 
-    /// 숙제3: StackView Refactoring
     func setAutolayout() {
-        let mainImageStack: UIStackView = .init()
-        mainImageStack.axis = .horizontal
-        mainImageStack.alignment = .center
-        mainImageStack.translatesAutoresizingMaskIntoConstraints = false
-        
         let backgroundImageStack: UIStackView = .init()
         backgroundImageStack.axis = .horizontal
+        backgroundImageStack.alignment = .center
+        backgroundImageStack.distribution = .fill
         backgroundImageStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        let imageStack: UIStackView = .init()
-        imageStack.axis = .horizontal
-        imageStack.translatesAutoresizingMaskIntoConstraints = false
         
         let contentStack: UIStackView = .init()
         contentStack.axis = .horizontal
@@ -105,27 +83,13 @@ final class MovieDetailCell: UITableViewCell {
         let vStack: UIStackView = .init()
         vStack.axis = .vertical
         vStack.distribution = .fill
+        vStack.spacing = 12
         vStack.translatesAutoresizingMaskIntoConstraints = false
         
-        let v2Stack: UIStackView = .init()
-        v2Stack.axis = .vertical
-        v2Stack.distribution = .fill
-        v2Stack.spacing = 5
-        v2Stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        imageStack.addSubview(mainImageStack)
-        imageStack.addSubview(backgroundImageStack)
-        contentStack.addSubview(vStack)
-        contentStack.addSubview(v2Stack)
-        contentView.addSubview(imageStack)
-        contentView.addSubview(contentStack)
+        contentView.addSubview(vStack)
+        contentView.addSubview(backgroundImageStack)
 
-        mainImageStack.addSubview(posterImageView)
         backgroundImageStack.addSubview(backgroundImageView)
-
-        mainImageStack.layer.zPosition = 2
-        backgroundImageStack.layer.zPosition = 1
-        vStack.layer.zPosition = 10
         
         vStack.addArrangedSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -134,60 +98,40 @@ final class MovieDetailCell: UITableViewCell {
         vStack.addArrangedSubview(releaseDateLabel)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        v2Stack.addArrangedSubview(descriptionTitle)
+        vStack.addArrangedSubview(descriptionTitle)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        v2Stack.addArrangedSubview(descriptionLabel)
+        vStack.addArrangedSubview(descriptionLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        v2Stack.addArrangedSubview(starLabel)
+        vStack.addArrangedSubview(starLabel)
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            imageStack.heightAnchor.constraint(equalToConstant: 400),
-            contentStack.heightAnchor.constraint(equalToConstant: 400),
+            backgroundImageStack.heightAnchor.constraint(equalToConstant: 400)
         ])
-        
-        NSLayoutConstraint.activate([
-                posterImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
-                posterImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
-                posterImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.2),
-                posterImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
-                posterImageView.heightAnchor.constraint(equalToConstant: 150)
-            ])
-        posterImageView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
                backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 1),
                backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 1),
                backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
                backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-               backgroundImageView.heightAnchor.constraint(equalToConstant: 50)
+               backgroundImageView.heightAnchor.constraint(equalToConstant: 350)
 
            ])
         backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            vStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 100),
+            vStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 320),
             vStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 100),
             vStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -100),
             vStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
-            vStack.heightAnchor.constraint(equalToConstant: 150)
-
+            vStack.heightAnchor.constraint(equalToConstant: 250),
+            titleLabel.heightAnchor.constraint(equalToConstant: 50)
            ])
         vStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            v2Stack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 310),
-            v2Stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 100),
-            v2Stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -100),
-            vStack.heightAnchor.constraint(equalToConstant: 150)
-           ])
-        v2Stack.translatesAutoresizingMaskIntoConstraints = false
     }
     func transferData( _ movie: Movie) {
         let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
-        posterImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.posterPath ?? "") )
-        
-        backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? "") )
+       backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? ""))
         
         titleLabel.text = movie.title
         subTitleLabel.text = movie.original_title
