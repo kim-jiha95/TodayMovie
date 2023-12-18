@@ -48,12 +48,19 @@ final class ImageCacheManager {
         /// 얘도 네트워크쪽 코드를 사용해서 쓰면 좋을 것 같긴 한데...
         latestTask = session.dataTask(with: url, completionHandler: { data, response, error in
             DispatchQueue.main.async {
-                /// 저장하고 나서 completion? 
-                if let data, let image = UIImage(data: data) {
-                    completion(image)
-                } else {
+                if let error = error {
+                    print("Error downloading image: \(error)")
                     completion(nil)
+                    return
                 }
+
+                guard let data = data, let image = UIImage(data: data) else {
+                    print("Error converting data to image")
+                    completion(nil)
+                    return
+                }
+                ImageCacheManager.shared.setCacheData(of: image, for: url.absoluteString)
+                completion(image)
             }
         })
         latestTask?.resume()
