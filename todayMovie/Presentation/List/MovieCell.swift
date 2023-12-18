@@ -45,7 +45,6 @@ final class MovieCell: UITableViewCell {
         rankLabel.text = .none
         titleLabel.text = .none
         descriptionLabel.text = .none
-        ImageCacheManager.shared.cancelDownloadTask() // 숙제8. 얘도 고쳐주세요
     }
     
     required init?(coder: NSCoder) {
