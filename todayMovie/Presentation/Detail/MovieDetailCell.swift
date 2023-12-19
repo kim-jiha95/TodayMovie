@@ -8,7 +8,7 @@
 import UIKit
 
 final class MovieDetailCell: UITableViewCell {
-    static let cellId = "CellId2"
+    static let cellId = "CellId2" // 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black

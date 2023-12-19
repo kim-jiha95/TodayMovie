@@ -37,7 +37,7 @@ final class MovieViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
         
-        tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.cellId)
+        tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reusableIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -49,7 +49,7 @@ final class MovieViewController: UIViewController {
         movies.removeAll()
         fetchMovieData()
     }
-
+    
     func fetchMovieData() {
         let parameters: Parameters = [
             "api_key": NetworkConstant.tmdbAPIKey,
@@ -62,7 +62,7 @@ final class MovieViewController: UIViewController {
         movies.append(contentsOf: newMovies)
         tableView.reloadData()
         currentPage += 1
-
+        
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(parameters),
             for: MovieData.self
@@ -78,7 +78,7 @@ final class MovieViewController: UIViewController {
                 } else {
                     self.movies.append(contentsOf: newMovies)
                 }
-            
+                
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
@@ -114,20 +114,21 @@ final class MovieViewController: UIViewController {
             self.present(alertController, animated: true, completion: nil)
         }
     }
-
+    
 }
 
 extension MovieViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard 
+        guard
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieCell.cellId, 
+                withIdentifier: MovieCell.reusableIdentifier,
                 for: indexPath
             ) as? MovieCell
         else { return UITableViewCell() }
-        let briefRank = indexPath.row 
-        let movie = movies[indexPath.row] // safe casting
+        let briefRank = indexPath.row
+        guard let movie = movies[safe: indexPath.row]
+        else { return cell } //mock data cell or error alert cell
         cell.configure(with: movie, briefRank: briefRank)
         return cell
     }
@@ -137,10 +138,10 @@ extension MovieViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-            if indexPath.row == movies.count - 1 {
-                fetchMovieData()
-            }
+        if indexPath.row == movies.count - 1 {
+            fetchMovieData()
         }
+    }
 }
 
 extension MovieViewController: UITableViewDelegate {

@@ -9,7 +9,7 @@ import UIKit
 
 final class MovieCell: UITableViewCell {
     
-    static let cellId = "CellId" // 숙제8. protocol
+//    static let cellId = "CellId" // 숙제8. protocol
     
     private let thunbnailImageView: UIImageView = {
         let view = UIImageView()
@@ -46,7 +46,6 @@ final class MovieCell: UITableViewCell {
         titleLabel.text = .none
         descriptionLabel.text = .none
     }
-    
     required init?(coder: NSCoder) {
         fatalError("Error")
     }
