@@ -15,6 +15,7 @@ final class MovieCell: UITableViewCell {
         let view = UIImageView()
         view.heightAnchor.constraint(equalToConstant: 100).isActive = false
         view.widthAnchor.constraint(equalToConstant: 100).isActive = false
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     private let rankLabel: UILabel = {
@@ -26,6 +27,7 @@ final class MovieCell: UITableViewCell {
         return rankLabel
     }()
   
+    /// Label 에는 textColor, font 는 설정이 필요해요
     private let titleLabel: UILabel = .init()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
@@ -49,13 +51,6 @@ final class MovieCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("Error")
     }
-    private lazy var posterView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.widthAnchor.constraint(equalToConstant: 90).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 110).isActive = true
-        imageView.backgroundColor = .darkGray
-        return imageView
-    }()
 
     private func configureUI() {
         let hStack: UIStackView = .init()
@@ -82,6 +77,7 @@ final class MovieCell: UITableViewCell {
         rankLabel.setContentHuggingPriority(.required, for: .horizontal)
         rankLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
+        /// property를 생성하는 시점에 결정해주면 코드가 더 깔끔해질듯 
         thunbnailImageView.setContentHuggingPriority(.required, for: .horizontal)
         thunbnailImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
@@ -98,8 +94,7 @@ final class MovieCell: UITableViewCell {
             thunbnailImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.2),
             thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
             thunbnailImageView.heightAnchor.constraint(equalToConstant: 150)
-            ])
-        thunbnailImageView.translatesAutoresizingMaskIntoConstraints = false
+        ])
     }
     
     

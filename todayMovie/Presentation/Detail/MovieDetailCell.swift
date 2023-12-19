@@ -7,6 +7,14 @@
 
 import UIKit
 
+/// 숙제 6: 
+/// UITableViewCell 제거하고,
+/// 의미없는 StackView들 제거하고
+/// warning들 제거하고
+/// text label들이 잘 안보이잖아요
+/// 이쁘게 포매팅 
+/// 
+/// 아까 수정하신 아이들 커밋이랑 같이.
 final class MovieDetailCell: UITableViewCell {
     static let cellId = "CellId2" // 
     private let titleLabel: UILabel = {

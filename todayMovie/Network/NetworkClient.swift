@@ -54,6 +54,32 @@ struct NetworkClient {
         self.urlSession = urlSession
     }
     
+    func Result_를_받아서_아무것도_returen하지_않는_클로저(result: Result<Model1, Error>) {
+        
+    }
+    
+    /// 숙제 1: 
+    /// serial queue, concurrent queue의 차이
+    /// Main Queue와 Background Queue의 차이
+    /// async 함수와 sync 함수의 차이
+    /// @escaping 다시 혼자 복습 & 정리
+    /// 
+    /// 블로그만 보는게 아니라 예제코드 작성해서 실험해와주세요
+    /// https://zeddios.tistory.com/516
+    /// https://sujinnaljin.medium.com/ios-%EC%B0%A8%EA%B7%BC%EC%B0%A8%EA%B7%BC-%EC%8B%9C%EC%9E%91%ED%95%98%EB%8A%94-gcd-grand-dispatch-queue-1-397db16d0305
+    /// 1~10 세번 읽고, 예제코드 작성해서 설명해주세요.
+    func 어떤함수() {
+        print("1번 작업") // 20초
+        print("2번 작업") // 1초
+        let closure: (Result<Model1, Error>) -> Void = { result in print("background에 네트워크에서 받아온 그림을 넣는 작업") }
+        self.request(endpoint: Endpoint.Movie.topRated(.init()), for: Model1.self, completionHandler: closure) // 네트워크는 5초
+        print("3번 작업 UI를 그리는 작업 - background color") // 10초
+        print("4번 작업") // 3초
+    }
+    
+    /// `@escaping`의 의미는? -> 부른 아이의 라이프 사이클에서 탈출한다.
+    /// `@escaping` 키워드를 사용한 closure를 사용하는 이유?
+    /// 
     func request<T: Decodable>(
         endpoint: URLRequestConfigurable,
         for type: T.Type,
@@ -101,6 +127,7 @@ struct NetworkClient {
             let response = response as? HTTPURLResponse, 
             200..<300 ~= response.statusCode 
         else {
+            /// 요거는 릴리즈에는 나가면 안돼요.
             print(response)
             throw NSError(domain: "5", code: 5)
         }
