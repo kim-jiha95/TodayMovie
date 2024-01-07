@@ -114,25 +114,15 @@ final class MovieViewController: UIViewController {
                 self.currentPage += 1
                 
             case let .failure(error):
-                print(error) // 문제점 2. 실패에 대한 처리
+                // 문제점 2. 실패에 대한 처리
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: error.localizedDescription)
+                    self.refreshControl.endRefreshing()
+                }
             }
         }
     }
     
-    /// 안쓰이는 함수는 바로바로 지워야해요.
-    private func handle(result: Result<MovieData, Error>) {
-        DispatchQueue.main.async {
-            switch result {
-            case let .success(movieData):
-                self.movies = movieData.results
-                self.tableView.reloadData()
-                
-            case .failure(let error):
-                self.showAlert(title: "Error", message: error.localizedDescription)
-                print(error)
-            }
-        }
-    }
     private func showAlert(title: String, message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
