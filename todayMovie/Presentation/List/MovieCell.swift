@@ -9,10 +9,10 @@ import UIKit
 
 final class MovieCell: UITableViewCell {
     
-//    static let cellId = "CellId" // 숙제8. protocol
-    
     private let thunbnailImageView: UIImageView = {
         let view = UIImageView()
+        view.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
         view.heightAnchor.constraint(equalToConstant: 100).isActive = false
         view.widthAnchor.constraint(equalToConstant: 100).isActive = false
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -27,8 +27,11 @@ final class MovieCell: UITableViewCell {
         return rankLabel
     }()
   
-    /// Label 에는 textColor, font 는 설정이 필요해요
-    private let titleLabel: UILabel = .init()
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        return label
+    }()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
@@ -65,8 +68,6 @@ final class MovieCell: UITableViewCell {
         vStack.alignment = .fill
         vStack.distribution = .fillEqually
         vStack.translatesAutoresizingMaskIntoConstraints = false
-        
-//        hStack.addArrangedSubview(rankLabel)
         hStack.addArrangedSubview(thunbnailImageView)
         hStack.addArrangedSubview(vStack)
         vStack.addArrangedSubview(titleLabel)
@@ -77,10 +78,6 @@ final class MovieCell: UITableViewCell {
         rankLabel.setContentHuggingPriority(.required, for: .horizontal)
         rankLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         
-        /// property를 생성하는 시점에 결정해주면 코드가 더 깔끔해질듯 
-        thunbnailImageView.setContentHuggingPriority(.required, for: .horizontal)
-        thunbnailImageView.setContentCompressionResistancePriority(.required, for: .horizontal)
-
         NSLayoutConstraint.activate([
             hStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             hStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
