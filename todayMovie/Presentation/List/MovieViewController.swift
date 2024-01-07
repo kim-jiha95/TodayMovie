@@ -74,71 +74,87 @@ final class MovieViewController: UIViewController {
     /// 재시도 버튼과 취소 버튼
     /// 재시도 시 다시 (전에 시도한) API를 찔러오는 것
     /// 취소시 취소
-    /// 
+    ///
+    ///
+
     func fetchMovieData() {
-        let parameters: Parameters = [
+        let parameters = createAPIParameters()
+        loadMovies(with: parameters)
+    }
+
+    func createAPIParameters() -> Parameters {
+        return [
             "api_key": NetworkConstant.tmdbAPIKey,
             "language": "ko-KR",
             "page": "\(currentPage)",
             "append_to_response": "videos"
         ]
-        
+    }
+
+    func loadMovies(with parameters: Parameters) {
         /// 문제점 3. tableView.reloadData
         /// 깜빡임 문제가 발생해요.
-        let newMovies: [Movie] = []
-        movies.append(contentsOf: newMovies)
-        tableView.reloadData()
+        let newMovies: [Movie] = [] // 더미 데이터 또는 초기화 로직
+
+        updateMovies(with: newMovies)
         currentPage += 1
-        
+
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(parameters),
             for: MovieData.self
         ) { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case let .success(movieData):
-                let newMovies = movieData.results
-                
-                if self.currentPage == 1 {
-                    self.movies = newMovies
-                } else {
-                    self.movies.append(contentsOf: newMovies)
-                }
-                
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                    self.refreshControl.endRefreshing()
-                }
-                
-                self.currentPage += 1
-                
-            case let .failure(error):
-                // 문제점 2. 실패에 대한 처리
-                DispatchQueue.main.async {
-                    let alertController = UIAlertController(
-                        title: "Error",
-                        message: error.localizedDescription,
-                        preferredStyle: .alert
-                    )
-                    
-                    let retryAction = UIAlertAction(title: "Retry", style: .default) { _ in
-                        self.fetchMovieData()
-                    }
-                    
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-                        self.refreshControl.endRefreshing()
-                    }
-                    
-                    alertController.addAction(retryAction)
-                    alertController.addAction(cancelAction)
-                    
-                    self.present(alertController, animated: true, completion: nil)
-                    
-                }
-            }
+            self?.handleNetworkResult(result)
         }
     }
+
+    func updateMovies(with newMovies: [Movie]) {
+        if currentPage == 1 {
+            movies = newMovies
+        } else {
+            movies.append(contentsOf: newMovies)
+        }
+
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            self.refreshControl.endRefreshing()
+        }
+    }
+
+    func handleNetworkResult(_ result: Result<MovieData, Error>) {
+        switch result {
+        case let .success(movieData):
+            let newMovies = movieData.results
+            updateMovies(with: newMovies)
+
+        case let .failure(error):
+            handleNetworkFailure(error)
+        }
+    }
+
+    // 문제점 2. 실패에 대한 처리
+    func handleNetworkFailure(_ error: Error) {
+        DispatchQueue.main.async {
+            let alertController = UIAlertController(
+                title: "Error",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+
+            let retryAction = UIAlertAction(title: "Retry", style: .default) { [weak self] _ in
+                self?.fetchMovieData()
+            }
+
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                self.refreshControl.endRefreshing()
+            }
+
+            alertController.addAction(retryAction)
+            alertController.addAction(cancelAction)
+
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
+
     
     private func showAlert(title: String, message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
