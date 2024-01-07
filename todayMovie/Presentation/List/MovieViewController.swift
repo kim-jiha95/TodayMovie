@@ -179,7 +179,9 @@ extension MovieViewController: UITableViewDataSource {
     /// movies.count - 1 -> 마지막에 닿아야 불리는 코드
     /// 내리면 쭉쭉 내려가려면 어떻게 다듬으면 좋을지
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == movies.count - 1 {
+        let threshold = 5
+        
+        if indexPath.row >= movies.count - threshold {
             fetchMovieData()
         }
     }
