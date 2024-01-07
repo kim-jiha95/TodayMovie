@@ -116,8 +116,25 @@ final class MovieViewController: UIViewController {
             case let .failure(error):
                 // 문제점 2. 실패에 대한 처리
                 DispatchQueue.main.async {
-                    self.showAlert(title: "Error", message: error.localizedDescription)
-                    self.refreshControl.endRefreshing()
+                    let alertController = UIAlertController(
+                        title: "Error",
+                        message: error.localizedDescription,
+                        preferredStyle: .alert
+                    )
+                    
+                    let retryAction = UIAlertAction(title: "Retry", style: .default) { _ in
+                        self.fetchMovieData()
+                    }
+                    
+                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                        self.refreshControl.endRefreshing()
+                    }
+                    
+                    alertController.addAction(retryAction)
+                    alertController.addAction(cancelAction)
+                    
+                    self.present(alertController, animated: true, completion: nil)
+                    
                 }
             }
         }
