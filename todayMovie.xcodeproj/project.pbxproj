@@ -39,6 +39,7 @@
 		9FBBF49C2B0A54A6001F9477 /* AlertManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBBF49B2B0A54A6001F9477 /* AlertManager.swift */; };
 		9FBBF49E2B0A54EA001F9477 /* JSONDecoderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBBF49D2B0A54EA001F9477 /* JSONDecoderError.swift */; };
 		9FBBF4A12B0A582C001F9477 /* copy-on-write.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBBF4A02B0A582C001F9477 /* copy-on-write.swift */; };
+		9FCD39B42B4FAC0E003BD006 /* MovieViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FCD39B32B4FAC0E003BD006 /* MovieViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		9FBBF49B2B0A54A6001F9477 /* AlertManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertManager.swift; sourceTree = "<group>"; };
 		9FBBF49D2B0A54EA001F9477 /* JSONDecoderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONDecoderError.swift; sourceTree = "<group>"; };
 		9FBBF4A02B0A582C001F9477 /* copy-on-write.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "copy-on-write.swift"; sourceTree = "<group>"; };
+		9FCD39B32B4FAC0E003BD006 /* MovieViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 			children = (
 				9F5FEF512B17A7C7008D9DE8 /* MovieCell.swift */,
 				9F6417E82AED3CB0009C8C72 /* MovieViewController.swift */,
+				9FCD39B32B4FAC0E003BD006 /* MovieViewModel.swift */,
 			);
 			path = List;
 			sourceTree = "<group>";
@@ -424,6 +427,7 @@
 				9F6323732AFBE0EC00C712D8 /* codable_example.swift in Sources */,
 				033E64E92AF3CEA60035DAAA /* Sample.swift in Sources */,
 				9F2BC2072AFF9F97002AC6E4 /* prepareforReuse_example.swift in Sources */,
+				9FCD39B42B4FAC0E003BD006 /* MovieViewModel.swift in Sources */,
 				9F6323752AFBE1A700C712D8 /* codingKey_example.swift in Sources */,
 				9F6417E72AED3CB0009C8C72 /* SceneDelegate.swift in Sources */,
 				9F3EB3F82B1F8A2600351D33 /* UIImageView+extension.swift in Sources */,

@@ -59,10 +59,8 @@ import UIKit
 /// medium -> 예쁜데, 돈을 써야 보는? 제일 퀄리티가 높은
 final class MovieViewController: UIViewController {
     
-    private var movies: [Movie] = []
-    private let networkClient = NetworkClient()
-    private var currentPage = 1
     private let refreshControl = UIRefreshControl()
+    private let viewModel = MovieViewModel()
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -73,7 +71,8 @@ final class MovieViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        fetchMovieData()
+        bindViewModel()
+        viewModel.fetchMovieData()
     }
     
     private func configureUI() {
@@ -94,13 +93,23 @@ final class MovieViewController: UIViewController {
         tableView.refreshControl = refreshControl
     }
     
+    private func bindViewModel() {
+        viewModel.updateHandler = { [weak self] in
+            self?.tableView.reloadData()
+            self?.refreshControl.endRefreshing()
+        }
+    }
+    
     /// 어떤 행동을 할지 x
     /// 함수 이름은 어떤 행동이 일어났는지
     /// 
+    //    @objc private func refreshControlPulled() {
+    //        currentPage = 1
+    //        movies.removeAll()
+    //        fetchMovieData()
+    //    }
     @objc private func refreshControlPulled() {
-        currentPage = 1
-        movies.removeAll()
-        fetchMovieData()
+        viewModel.resetData()
     }
     
     /// 문제점 1. 하나의 함수가 너무 여러개의 일을 하고 있어요.
@@ -124,92 +133,6 @@ final class MovieViewController: UIViewController {
     /// 재시도 버튼과 취소 버튼
     /// 재시도 시 다시 (전에 시도한) API를 찔러오는 것
     /// 취소시 취소
-    ///
-    ///
-    
-    func fetchMovieData() {
-        let parameters = createAPIParameters()
-        loadMovies(with: parameters)
-    }
-    
-    func createAPIParameters() -> Parameters {
-        return [
-            "api_key": NetworkConstant.tmdbAPIKey,
-            "language": "ko-KR",
-            "page": "\(currentPage)",
-            "append_to_response": "videos"
-        ]
-    }
-    
-    func loadMovies(with parameters: Parameters) {
-        /// 문제점 3. tableView.reloadData
-        /// 깜빡임 문제가 발생해요.
-        let newMovies: [Movie] = [] // 더미 데이터 또는 초기화 로직
-        
-        updateMovies(with: newMovies)
-        currentPage += 1
-        
-        networkClient.request(
-            endpoint: Endpoint.Movie.topRated(parameters),
-            for: MovieData.self
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.handleNetworkResult(result)
-            }
-        }
-    }
-    
-    func updateMovies(with newMovies: [Movie]) {
-        if currentPage == 1 {
-            movies = newMovies
-        } else {
-            movies.append(contentsOf: newMovies)
-        }
-        
-        self.tableView.reloadData()
-        self.refreshControl.endRefreshing()
-    }
-    
-    func handleNetworkResult(_ result: Result<MovieData, Error>) {
-        switch result {
-        case let .success(movieData):
-            let newMovies = movieData.results
-            updateMovies(with: newMovies)
-            
-        case let .failure(error):
-            handleNetworkFailure(error)
-        }
-    }
-    
-    // 객체를 만들거나, protocol화 해서 사용하면 좋음
-    func handleNetworkFailure(_ error: Error) {
-        let alertController = UIAlertController(
-            title: "Error",
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        
-        /// escaping인데, self를 weak로 안잡으면 메모리릭
-        /// escaping인데, self를 weak로 잡으면 괜찮구
-        /// 
-        /// non-escaping인데, self를 weak로 안잡으면 delay-deallocation
-        /// non-escaping인데, self를 weak로 잡으면 괜찮구
-        /// 
-        let retryAction = UIAlertAction(title: "Retry", style: .default) { [weak self] _ in
-            self?.fetchMovieData()
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-            self.refreshControl.endRefreshing()
-        }
-        
-        alertController.addAction(retryAction)
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
-    }
-    
-    
     private func showAlert(title: String, message: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
@@ -232,28 +155,32 @@ extension MovieViewController: UITableViewDataSource {
             ) as? MovieCell
         else { return UITableViewCell() }
         let briefRank = indexPath.row
-        guard let movie = movies[safe: indexPath.row]
+        guard let movie = viewModel.getMovie(at: indexPath.row)
+                
         else { return cell } //mock data cell or error alert cell
         cell.configure(with: movie, briefRank: briefRank)
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return movies.count
+        return viewModel.numberOfMovies()
+        
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let threshold: Int = 5
-        let shouldFetchData: Bool = indexPath.row >= movies.count - threshold
+        let shouldFetchData: Bool = indexPath.row >= (viewModel.numberOfMovies() - threshold)
+        
         guard shouldFetchData else { return }
-        fetchMovieData()
+        viewModel.fetchMovieData()
     }
 }
 
 extension MovieViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let selectedMovie = movies[indexPath.row]
+        guard let selectedMovie = viewModel.getMovie(at: indexPath.row) else { return }
+        
         let movieDetailViewController = MovieDetailViewController(movie: selectedMovie)
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
