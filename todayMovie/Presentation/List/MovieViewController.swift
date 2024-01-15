@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 /// 숙제: MVC -> MVVM으로 바꿔볼거에요
 /// 
@@ -57,10 +58,42 @@ import UIKit
 /// velog -> google에 잘 노출되더라구요?, 돈은 안돼요. 제일 쉽게 쓸 수 있어서, 퀄리티가 좀 낮은 느낌?
 /// tstory -> 노출은 잘 모르겠는데, 유명해지면 간식비정도?
 /// medium -> 예쁜데, 돈을 써야 보는? 제일 퀄리티가 높은
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 
+/// 1월 15일 기준
+/// 숙제
+/// 1. 뷰에서 바인딩 시 insert 구현
+/// 2. 뷰모델 로직 정리
+/// 
+/// 뷰 관련 이슈들
+/// 1. 검색어를 입력받아서 영화 검색하기
+/// 2. 기본적으로 내장되어야할 파라미터 분리
+
+/// 4. 에러처리
+/// 
+/// 뷰모델 관련 이슈들
+
+/// 2. 뷰모델 구현 고도화
+///
+/// 기타 기능 
+/// 1. 이미지 캐싱 고도화
+///     1.1) 로드하는 아이와, 캐시를 들고있는 아이를 분리
+///     1.2) 캐시를 actor로 변환
+///     1.3) memory cache, disk cache 구현
+/// 2. 테스트 코드 작성 
 final class MovieViewController: UIViewController {
     
     private let refreshControl = UIRefreshControl()
-    private let viewModel = MovieViewModel()
+    private let viewModel = MovieViewModel(networkClient: NetworkClient())
+    private var cancellables: Set<AnyCancellable> = .init()
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -72,7 +105,7 @@ final class MovieViewController: UIViewController {
         super.viewDidLoad()
         configureUI()
         bindViewModel()
-        viewModel.fetchMovieData()
+        viewModel.viewDidLoad()
     }
     
     private func configureUI() {
@@ -94,6 +127,17 @@ final class MovieViewController: UIViewController {
     }
     
     private func bindViewModel() {
+        viewModel.$movies
+            .sink { movie in
+                print(movie)
+            }
+            .store(in: &cancellables)
+        
+        /// [movie]을 받아서 
+        /// reloadData 사용 없이
+        /// tableview insert -> 어려울 수 있음
+        /// 
+        /// diffable datasource -> 새로 공부하는 것도 어려울 수 있어요
         viewModel.updateHandler = { [weak self] in
             self?.tableView.reloadData()
             self?.refreshControl.endRefreshing()
@@ -102,14 +146,9 @@ final class MovieViewController: UIViewController {
     
     /// 어떤 행동을 할지 x
     /// 함수 이름은 어떤 행동이 일어났는지
-    /// 
-    //    @objc private func refreshControlPulled() {
-    //        currentPage = 1
-    //        movies.removeAll()
-    //        fetchMovieData()
-    //    }
+    /// Action
     @objc private func refreshControlPulled() {
-        viewModel.resetData()
+        viewModel.refreshControlPulled()
     }
     
     /// 문제점 1. 하나의 함수가 너무 여러개의 일을 하고 있어요.

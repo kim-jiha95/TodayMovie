@@ -34,18 +34,18 @@ extension UIImageView {
     }
     
     func setImage(with url: String) {
-            let indicator = self.indicator()
-            addSubview(indicator)
-            indicator.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-            indicator.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-
-            ImageLoader().loadImage(with: url) { [weak self] image in
-                if let image = image {
-                    // Set the image and stop the indicator
-                    self?.image = image
-                }
-                indicator.stopAnimating()
+        let indicator = self.indicator()
+        addSubview(indicator)
+        indicator.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        indicator.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+        
+        ImageLoader().loadImage(with: url) { [weak self] image in
+            if let image = image {
+                // Set the image and stop the indicator
+                self?.image = image
             }
+            indicator.stopAnimating()
         }
+    }
 
 }

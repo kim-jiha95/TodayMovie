@@ -46,16 +46,12 @@ struct Model6: Decodable { }
 /// 동작과 역할분리는 어느정도는 된 상태
 /// 완벽하지는 않아요.
 
-struct NetworkClient {
+struct NetworkClient: NetworkRequestable {
     
     private let urlSession: URLSession
     
     init(urlSession: URLSession = .shared) {
         self.urlSession = urlSession
-    }
-    
-    func Result_를_받아서_아무것도_returen하지_않는_클로저(result: Result<Model1, Error>) {
-        
     }
     
     func request<T: Decodable>(
