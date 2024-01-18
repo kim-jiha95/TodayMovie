@@ -6,8 +6,6 @@
 //
 
 import Foundation
-/// 뷰모델은 UI와 관련이 없어야 합니다.
-import UIKit
 
 // Interface Segregation Principle
 // Dependency Inversion Principle
@@ -17,7 +15,7 @@ protocol NetworkRequestable {
         endpoint: URLRequestConfigurable,
         for type: T.Type,
         completionHandler: @escaping (Result<T, Error>) -> Void
-    ) 
+    )
 }
 
 class MovieViewModel {
@@ -25,10 +23,6 @@ class MovieViewModel {
     @Published var movies: [Movie] = []
     private let networkClient: NetworkRequestable
     private var currentPage = 1
-    
-    /// 이친구를 지워주세요
-    private let refreshControl = UIRefreshControl()
-    
     // 의존성 주입
     init(
         movies: [Movie] = [],
@@ -41,6 +35,8 @@ class MovieViewModel {
         self.currentPage = currentPage
         self.updateHandler = updateHandler
     }
+    weak var delegate: NetworkFailureHandlingDelegate?
+    
     
     var updateHandler: (() -> Void)?
     
@@ -54,6 +50,7 @@ class MovieViewModel {
     }
     
     func loadMovies(with parameters: Parameters) {
+        print(currentPage, "currentpage")
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(parameters),
             for: MovieData.self
@@ -90,43 +87,16 @@ class MovieViewModel {
             updateMovies(with: newMovies)
             
         case let .failure(error):
-            handleNetworkFailure(error)
+            delegate?.handleNetworkFailure(error, retryHandler: {
+                self.fetchMovieData()
+            }, cancelHandler: {
+                // user canceled
+            })
         }
     }
     
-    // 이친구들은 뷰모델이 아니라 뷰에 있어야해요.
-    // 객체를 만들거나, protocol화 해서 사용하면 좋음
-    func handleNetworkFailure(_ error: Error) {
-        let alertController = UIAlertController(
-            title: "Error",
-            message: error.localizedDescription,
-            preferredStyle: .alert
-        )
-        
-        /// escaping인데, self를 weak로 안잡으면 메모리릭
-        /// escaping인데, self를 weak로 잡으면 괜찮구
-        ///
-        /// non-escaping인데, self를 weak로 안잡으면 delay-deallocation
-        /// non-escaping인데, self를 weak로 잡으면 괜찮구
-        ///
-        let retryAction = UIAlertAction(title: "Retry", style: .default) {_ in
-//            viewModel.retryButtonTapped()
-            self.fetchMovieData()
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-//            viewModel.cancelButtonTapped()
-            self.refreshControl.endRefreshing()
-        }
-        
-        alertController.addAction(retryAction)
-        alertController.addAction(cancelAction)
-        
-//            self.present(alertController, animated: true, completion: nil)
-    }
-    
-    /// 외부에서 몰라도 되는 함수는 private
-    private func fetchNextPage() {
+    func fetchNextPage() {
+        print("fetchNextPage?")
         currentPage += 1
         fetchMovieData()
     }
@@ -142,7 +112,6 @@ class MovieViewModel {
         return movies.count
     }
     
-    /// 10000개 index 9999
     func getMovie(at index: Int) -> Movie? {
         return movies[safe: index]
     }

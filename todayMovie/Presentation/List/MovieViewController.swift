@@ -66,7 +66,6 @@ import Combine
 ///     1.3) memory cache, disk cache 구현
 /// 2. 테스트 코드 작성 
 final class MovieViewController: UIViewController {
-    
     private let refreshControl = UIRefreshControl()
     private let viewModel = MovieViewModel(networkClient: NetworkClient())
     private var cancellables: Set<AnyCancellable> = .init()
@@ -180,10 +179,11 @@ final class MovieViewController: UIViewController {
             self.present(alertController, animated: true, completion: nil)
         }
     }
+    
+    
 }
 
-extension MovieViewController: UITableViewDataSource {
-    
+extension MovieViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let cell = tableView.dequeueReusableCell(
@@ -205,11 +205,11 @@ extension MovieViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        threshold왜이렇게 늘어난거지?
         let threshold: Int = 5
         let shouldFetchData: Bool = indexPath.row >= (viewModel.numberOfMovies() - threshold)
-        
         guard shouldFetchData else { return }
-        viewModel.fetchMovieData()
+        viewModel.fetchNextPage()
     }
 }
 
@@ -222,3 +222,43 @@ extension MovieViewController: UITableViewDelegate {
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
 }
+
+private let viewModel = MovieViewModel(networkClient: NetworkClient())
+private let refreshControl = UIRefreshControl()
+
+// 이친구들은 뷰모델이 아니라 뷰에 있어야해요.
+// 객체를 만들거나, protocol화 해서 사용하면 좋음
+protocol NetworkFailureHandlingDelegate: AnyObject {
+    func handleNetworkFailure(_ error: Error, retryHandler: @escaping () -> Void, cancelHandler: @escaping () -> Void)
+}
+
+extension NetworkFailureHandlingDelegate where Self: UIViewController {
+    func showNetworkFailureAlert(retryHandler: @escaping () -> Void, cancelHandler: @escaping () -> Void) {
+        let alertController = UIAlertController(
+            title: "Error",
+            message: "Err",
+            preferredStyle: .alert
+        )
+        let retryAction = UIAlertAction(title: "Retry", style: .default) { _ in
+            retryHandler()
+        }
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+            cancelHandler()
+        }
+
+        alertController.addAction(retryAction)
+        alertController.addAction(cancelAction)
+
+        self.present(alertController, animated: true, completion: nil)
+    }
+}
+
+extension MovieViewController: NetworkFailureHandlingDelegate {
+    func handleNetworkFailure(_ error: Error, retryHandler: @escaping () -> Void, cancelHandler: @escaping () -> Void) {
+        showNetworkFailureAlert(retryHandler: retryHandler, cancelHandler: cancelHandler)
+    }
+}
+
+
+
