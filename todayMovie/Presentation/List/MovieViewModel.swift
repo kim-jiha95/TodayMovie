@@ -44,13 +44,16 @@ class MovieViewModel {
         fetchMovieData()
     }
     
+    func searchMovies(query: String) {
+
+    }
+    
     func fetchMovieData() {
         let parameters = createAPIParameters()
         loadMovies(with: parameters)
     }
     
     func loadMovies(with parameters: Parameters) {
-        print(currentPage, "currentpage")
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(parameters),
             for: MovieData.self
@@ -90,13 +93,12 @@ class MovieViewModel {
             delegate?.handleNetworkFailure(error, retryHandler: {
                 self.fetchMovieData()
             }, cancelHandler: {
-                // user canceled
+                // user click cancel
             })
         }
     }
     
     func fetchNextPage() {
-        print("fetchNextPage?")
         currentPage += 1
         fetchMovieData()
     }

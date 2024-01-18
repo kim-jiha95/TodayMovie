@@ -66,6 +66,7 @@ import Combine
 ///     1.3) memory cache, disk cache 구현
 /// 2. 테스트 코드 작성 
 final class MovieViewController: UIViewController {
+    
     private let refreshControl = UIRefreshControl()
     private let viewModel = MovieViewModel(networkClient: NetworkClient())
     private var cancellables: Set<AnyCancellable> = .init()
@@ -86,14 +87,16 @@ final class MovieViewController: UIViewController {
     private func configureUI() {
         view.backgroundColor = .white
         view.addSubview(tableView)
-        
+        view.addSubview(searchBar)
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
-        
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reusableIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
@@ -141,6 +144,14 @@ final class MovieViewController: UIViewController {
     private enum Section {
         case main
     }
+    
+    private let searchBar: UISearchBar = {
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Search Movies"
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        return searchBar
+    }()
+    
     
     /// 어떤 행동을 할지 x
     /// 함수 이름은 어떤 행동이 일어났는지
@@ -205,7 +216,7 @@ extension MovieViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        threshold왜이렇게 늘어난거지?
+        //        threshold왜이렇게 늘어난거지?
         let threshold: Int = 5
         let shouldFetchData: Bool = indexPath.row >= (viewModel.numberOfMovies() - threshold)
         guard shouldFetchData else { return }
@@ -242,14 +253,14 @@ extension NetworkFailureHandlingDelegate where Self: UIViewController {
         let retryAction = UIAlertAction(title: "Retry", style: .default) { _ in
             retryHandler()
         }
-
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
             cancelHandler()
         }
-
+        
         alertController.addAction(retryAction)
         alertController.addAction(cancelAction)
-
+        
         self.present(alertController, animated: true, completion: nil)
     }
 }
@@ -257,6 +268,18 @@ extension NetworkFailureHandlingDelegate where Self: UIViewController {
 extension MovieViewController: NetworkFailureHandlingDelegate {
     func handleNetworkFailure(_ error: Error, retryHandler: @escaping () -> Void, cancelHandler: @escaping () -> Void) {
         showNetworkFailureAlert(retryHandler: retryHandler, cancelHandler: cancelHandler)
+    }
+}
+
+extension MovieViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        viewModel.searchMovies(query: searchText)
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        // Handle search button click if needed
+        searchBar.resignFirstResponder()
     }
 }
 
