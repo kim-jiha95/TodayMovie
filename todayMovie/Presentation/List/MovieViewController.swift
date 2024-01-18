@@ -8,14 +8,7 @@
 import UIKit
 import Combine
 
-/// 숙제: MVC -> MVVM으로 바꿔볼거에요
-/// 
-/// 꼭 해야하는 숙제: MVVM 관련 자료들 미리 학습하고, MVVM을 왜 써야하는가?
-/// 시간이 남으면: MVVM으로 바꿔보기
-/// 
-/// MVVM을 왜 써야하는가?
-/// 바꿔보고 남은거 해오고
-/// 
+
 /// 비동기 처리는 일단 closure
 /// closure -> Combine or async/await로 바꿀거에요 -> 개념학습 2주 +, 코드를 변환 2주 +
 ///
@@ -50,24 +43,7 @@ import Combine
 /// 비동기: async / combine / rxswift
 /// 테스트코드: optional
 /// swift 기초지식들을 완벽하게 알기
-/// 
-/// 블로그
-/// 저는 강추
-/// 첫글 closure로 기대해도 될까요?
-/// 
-/// velog -> google에 잘 노출되더라구요?, 돈은 안돼요. 제일 쉽게 쓸 수 있어서, 퀄리티가 좀 낮은 느낌?
-/// tstory -> 노출은 잘 모르겠는데, 유명해지면 간식비정도?
-/// medium -> 예쁜데, 돈을 써야 보는? 제일 퀄리티가 높은
-/// 
-/// 
-/// 
-/// 
-/// 
-/// 
-/// 
-/// 
-/// 
-/// 
+///
 /// 1월 15일 기준
 /// 숙제
 /// 1. 뷰에서 바인딩 시 insert 구현
@@ -126,22 +102,45 @@ final class MovieViewController: UIViewController {
         tableView.refreshControl = refreshControl
     }
     
+    /// [movie]을 받아서
+    /// reloadData 사용 없이
+    /// tableview insert -> 어려울 수 있음
+    ///
+    /// diffable datasource -> 새로 공부하는 것도 어려울 수 있어요
     private func bindViewModel() {
+        var dataSource: UITableViewDiffableDataSource<Section, Movie>!
+        
+        dataSource = UITableViewDiffableDataSource<Section, Movie>(tableView: tableView) { (tableView, indexPath, movie) -> UITableViewCell? in
+            guard
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: MovieCell.reusableIdentifier,
+                    for: indexPath
+                ) as? MovieCell
+            else { return UITableViewCell() }
+            let briefRank = indexPath.row
+            cell.configure(with: movie, briefRank: briefRank)
+            return cell
+        }
+        
+        
         viewModel.$movies
-            .sink { movie in
-                print(movie)
+            .sink { movies in
+                var snapshot = NSDiffableDataSourceSnapshot<Section, Movie>()
+                snapshot.appendSections([.main])
+                snapshot.appendItems(movies)
+                
+                dataSource.apply(snapshot, animatingDifferences: true)
             }
             .store(in: &cancellables)
         
-        /// [movie]을 받아서 
-        /// reloadData 사용 없이
-        /// tableview insert -> 어려울 수 있음
-        /// 
-        /// diffable datasource -> 새로 공부하는 것도 어려울 수 있어요
         viewModel.updateHandler = { [weak self] in
-            self?.tableView.reloadData()
             self?.refreshControl.endRefreshing()
         }
+    }
+    
+    
+    private enum Section {
+        case main
     }
     
     /// 어떤 행동을 할지 x
@@ -157,18 +156,18 @@ final class MovieViewController: UIViewController {
     /// 3. networkClient.request
     /// 4. result에 대한 성공 핸들링
     /// 5. result에 대한 실패 핸들링
-    /// 
-    /// 숙제2: 
+    ///
+    /// 숙제2:
     /// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/automaticreferencecounting
     /// https://docs.swift.org/swift-book/documentation/the-swift-programming-language/memorysafety
     /// https://medium.com/@almalehdev/you-dont-always-need-weak-self-a778bec505ef
-    /// 
-    /// 숙제3: 
+    ///
+    /// 숙제3:
     /// 처음 data를 받아오는 함수와
     /// pagination으로 받아오는 함수를 분리하면 좋을 것 같아요.
-    /// 
-    /// 숙제4: 
-    /// 에러처리 -> 알럿을 띄워서 
+    ///
+    /// 숙제4:
+    /// 에러처리 -> 알럿을 띄워서
     /// 재시도 버튼과 취소 버튼
     /// 재시도 시 다시 (전에 시도한) API를 찔러오는 것
     /// 취소시 취소
@@ -181,7 +180,6 @@ final class MovieViewController: UIViewController {
             self.present(alertController, animated: true, completion: nil)
         }
     }
-    
 }
 
 extension MovieViewController: UITableViewDataSource {
@@ -196,7 +194,7 @@ extension MovieViewController: UITableViewDataSource {
         let briefRank = indexPath.row
         guard let movie = viewModel.getMovie(at: indexPath.row)
                 
-        else { return cell } //mock data cell or error alert cell
+        else { return cell }
         cell.configure(with: movie, briefRank: briefRank)
         return cell
     }

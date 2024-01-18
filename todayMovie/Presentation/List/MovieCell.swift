@@ -86,10 +86,10 @@ final class MovieCell: UITableViewCell {
         ])
         
         NSLayoutConstraint.activate([
-            thunbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
-            thunbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+//            thunbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
+//            thunbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             thunbnailImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.2),
-            thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
+//            thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
             thunbnailImageView.heightAnchor.constraint(equalToConstant: 150)
         ])
     }

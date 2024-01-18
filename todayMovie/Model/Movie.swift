@@ -33,7 +33,7 @@ struct MovieData: Codable {
     let total_results: Int
 }
 
-struct Movie: Codable, Equatable, Identifiable {
+struct Movie: Codable, Equatable, Identifiable, Hashable {
     let adult: Bool
     let backdrop_path: String?
     let genre_ids: [Int]

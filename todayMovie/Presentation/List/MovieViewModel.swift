@@ -126,7 +126,7 @@ class MovieViewModel {
     }
     
     /// 외부에서 몰라도 되는 함수는 private
-    func fetchNextPage() {
+    private func fetchNextPage() {
         currentPage += 1
         fetchMovieData()
     }
