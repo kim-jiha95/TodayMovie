@@ -100,6 +100,7 @@ final class MovieViewController: UIViewController {
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reusableIdentifier)
         tableView.dataSource = self
         tableView.delegate = self
+        searchBar.delegate = self
         refreshControl.addTarget(self, action: #selector(refreshControlPulled), for: .valueChanged)
         tableView.refreshControl = refreshControl
     }
@@ -273,12 +274,12 @@ extension MovieViewController: NetworkFailureHandlingDelegate {
 
 extension MovieViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        viewModel.searchMovies(query: searchText)
-        searchBar.resignFirstResponder()
+        viewModel.searchText = searchText
+        
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        // Handle search button click if needed
+        viewModel.searchMovies(query: viewModel.searchText)
         searchBar.resignFirstResponder()
     }
 }

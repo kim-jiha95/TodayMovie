@@ -21,37 +21,44 @@ struct Endpoint { }
 extension Endpoint {
     enum Movie {
         case topRated(_ parameters: Parameters)
+        case search(_ query: String, _ parameters: Parameters)
     }
 }
 
 extension Endpoint.Movie: URLRequestConfigurable {
+    
     var urlString: String {
         switch self {
         case .topRated: return "https://api.themoviedb.org/3/movie"
+        case .search(_, _): return "https://api.themoviedb.org/3/search/movie"
         }
     }
     
     var path: String? {
         switch self {
         case .topRated: return "/top_rated"
+        case .search: return nil
         }
     }
     
     var method: HTTPMethod {
         switch self {
         case .topRated: return .get
+        case .search: return .get
         }
     }
     
     var headers: HTTPHeaders? {
         switch self {
         case .topRated: return ["Content-Type": "application/json"]
+        case .search: return ["Content-Type": "application/json"]
         }
     }
     
     var encoder: ParameterEncodable {
         switch self {
         case .topRated: return URLEncoding()
+        case .search: return URLEncoding()
         }
     }
     
@@ -70,6 +77,17 @@ extension Endpoint.Movie: URLRequestConfigurable {
         case let .topRated(parameters):
             let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
             return encodedRequest
+        case let .search(query, parameters):
+                // Add query parameter to the URL
+                var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                urlComponents?.queryItems = [URLQueryItem(name: "query", value: query)]
+                
+                if let urlWithQuery = urlComponents?.url {
+                    urlRequest.url = urlWithQuery
+                }
+                
+                let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
+                return encodedRequest
         }
     }
 }

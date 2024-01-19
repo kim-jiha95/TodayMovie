@@ -49,6 +49,7 @@ struct Movie: Codable, Equatable, Identifiable, Hashable {
     let voteAverage: Double
     let voteCount: Int
     
+    
     private enum CodingKeys: String, CodingKey {
         case adult = "adult"
         case backdrop_path = "backdrop_path"

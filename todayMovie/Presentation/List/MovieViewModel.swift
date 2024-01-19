@@ -39,13 +39,23 @@ class MovieViewModel {
     
     
     var updateHandler: (() -> Void)?
-    
+    var isSearchClicked: Bool = false
+    var searchText: String = ""
     func viewDidLoad() {
         fetchMovieData()
     }
     
     func searchMovies(query: String) {
-
+        let parameters = createAPIParameters22(query: query)
+        networkClient.request(
+            endpoint: Endpoint.Movie.search(query, parameters),
+            for: MovieData.self
+        ) { [weak self] result in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.handle(result)
+            }
+        }
     }
     
     func fetchMovieData() {
@@ -70,7 +80,16 @@ class MovieViewModel {
             "api_key": NetworkConstant.tmdbAPIKey,
             "language": "ko-KR",
             "page": "\(currentPage)",
-            "append_to_response": "videos"
+            "append_to_response": "videos",
+        ]
+    }
+    func createAPIParameters22(query: String) -> Parameters {
+        return [
+            "api_key": NetworkConstant.tmdbAPIKey,
+            "language": "ko-KR",
+            "page": "\(currentPage)",
+            "append_to_response": "videos",
+            "query": "\(query)"
         ]
     }
     
@@ -80,6 +99,11 @@ class MovieViewModel {
         } else {
             movies.append(contentsOf: newMovies)
         }
+        updateHandler?()
+    }
+    
+    func update(with newMovies: [Movie]) {
+        movies = newMovies
         updateHandler?()
     }
     
@@ -95,6 +119,16 @@ class MovieViewModel {
             }, cancelHandler: {
                 // user click cancel
             })
+        }
+    }
+    
+    func handle(_ result: Result<MovieData, Error>) {
+        switch result {
+        case let .success(movieData):
+            let newMovies = movieData.results
+            update(with: newMovies)
+        case .failure(_): break
+            // add error handling
         }
     }
     
