@@ -16,7 +16,6 @@ import UIKit
 /// 
 /// 아까 수정하신 아이들 커밋이랑 같이.
 final class MovieDetailCell: UITableViewCell {
-    static let cellId = "CellId2" // 
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -114,27 +113,20 @@ final class MovieDetailCell: UITableViewCell {
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            backgroundImageStack.heightAnchor.constraint(equalToConstant: 400)
-        ])
-        
-        NSLayoutConstraint.activate([
-               backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 1),
-               backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 1),
-               backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
-               backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
-               backgroundImageView.heightAnchor.constraint(equalToConstant: 350)
-
-           ])
-        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
+            backgroundImageStack.heightAnchor.constraint(equalToConstant: 400),
+            backgroundImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 1),
+            backgroundImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 1),
+            backgroundImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
+            backgroundImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            backgroundImageView.heightAnchor.constraint(equalToConstant: 350),
             vStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 320),
             vStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 100),
             vStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -100),
             vStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
             vStack.heightAnchor.constraint(equalToConstant: 250),
             titleLabel.heightAnchor.constraint(equalToConstant: 50)
-           ])
+        ])
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
         vStack.translatesAutoresizingMaskIntoConstraints = false
     }
     func transferData( _ movie: Movie) {
