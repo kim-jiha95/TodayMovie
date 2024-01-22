@@ -20,24 +20,22 @@ protocol URLRequestConfigurable {
 struct Endpoint { }
 extension Endpoint {
     enum Movie {
-        case topRated(_ parameters: Parameters)
-        case search(_ query: String, _ parameters: Parameters)
+        static let baseURL: String = "https://api.themoviedb.org/3"
+        case topRated(page: Int)
+        case search(query: String, page: Int)
     }
 }
 
 extension Endpoint.Movie: URLRequestConfigurable {
     
     var urlString: String {
-        switch self {
-        case .topRated: return "https://api.themoviedb.org/3/movie"
-        case .search(_, _): return "https://api.themoviedb.org/3/search/movie"
-        }
+        return Endpoint.Movie.baseURL
     }
     
     var path: String? {
         switch self {
-        case .topRated: return "/top_rated"
-        case .search: return nil
+        case .topRated: return "/movie/top_rated"
+        case .search: return "/search/movie"
         }
     }
     
@@ -62,6 +60,22 @@ extension Endpoint.Movie: URLRequestConfigurable {
         }
     }
     
+    var parameters: Parameters? {
+        var commonParameters: Parameters = [
+            "api_key": NetworkConstant.tmdbAPIKey,
+            "language": "ko-KR",
+            "append_to_response": "videos",
+        ]
+        switch self {
+        case let .topRated(page):
+            commonParameters["page"] = "\(page)"
+        case let .search(query, page):
+            commonParameters["page"] = "\(page)"
+            commonParameters["query"] = "\(query)"
+        }
+        return commonParameters
+    }
+    
     func asURLRequest() throws -> URLRequest {
         guard var url: URL = URL(string: self.urlString) else { 
             throw JHNetworkError.invalidURLString 
@@ -73,22 +87,8 @@ extension Endpoint.Movie: URLRequestConfigurable {
         urlRequest.httpMethod = self.method.uppercasedValue
         urlRequest.allHTTPHeaderFields = self.headers
         
-        switch self {
-        case let .topRated(parameters):
-            let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
-            return encodedRequest
-        case let .search(query, parameters):
-                // Add query parameter to the URL
-                var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-                urlComponents?.queryItems = [URLQueryItem(name: "query", value: query)]
-                
-                if let urlWithQuery = urlComponents?.url {
-                    urlRequest.url = urlWithQuery
-                }
-                
-                let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
-                return encodedRequest
-        }
+        let encodedRequest = try encoder.encode(request: urlRequest, with: parameters)
+        return encodedRequest        
     }
 }
 

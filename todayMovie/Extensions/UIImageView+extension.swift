@@ -22,8 +22,7 @@ extension UIImageView {
     final class ImageLoader {
         private let cacheManager = ImageCacheManager.shared
         private let loadManager = ImageLoadManager.shared
-
-
+        
         func loadImage(with url: String, completion: @escaping (UIImage?) -> Void) {
             Task {
                 if let cachedImage = await self.cacheManager.loadCachedImage(for: url) {
