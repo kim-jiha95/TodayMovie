@@ -148,7 +148,7 @@ final class MovieViewController: UIViewController {
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
-        searchBar.placeholder = "Search Movies"
+        searchBar.placeholder = "영화 검색"
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         return searchBar
     }()
@@ -158,6 +158,7 @@ final class MovieViewController: UIViewController {
     /// 함수 이름은 어떤 행동이 일어났는지
     /// Action
     @objc private func refreshControlPulled() {
+        // todo: 땡기면 꺼지는 에러가 생겨서 수정 필요
         viewModel.refreshControlPulled()
     }
     

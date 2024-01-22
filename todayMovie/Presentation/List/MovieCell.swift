@@ -86,11 +86,12 @@ final class MovieCell: UITableViewCell {
         ])
         
         NSLayoutConstraint.activate([
-//            thunbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
-//            thunbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             thunbnailImageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.2),
-//            thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
-            thunbnailImageView.heightAnchor.constraint(equalToConstant: 150)
+            thunbnailImageView.heightAnchor.constraint(equalToConstant: 150),
+            // todo: 아래 3개 ui 제약 때문에 터미널 에러 생김
+            thunbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
+            thunbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            thunbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
         ])
     }
     

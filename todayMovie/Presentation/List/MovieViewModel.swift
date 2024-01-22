@@ -46,7 +46,7 @@ class MovieViewModel {
     }
     
     func searchMovies(query: String) {
-        let parameters = createAPIParameters22(query: query)
+        let parameters = createAPIParametersForSearch(query: query)
         networkClient.request(
             endpoint: Endpoint.Movie.search(query, parameters),
             for: MovieData.self
@@ -83,7 +83,7 @@ class MovieViewModel {
             "append_to_response": "videos",
         ]
     }
-    func createAPIParameters22(query: String) -> Parameters {
+    func createAPIParametersForSearch(query: String) -> Parameters {
         return [
             "api_key": NetworkConstant.tmdbAPIKey,
             "language": "ko-KR",
@@ -140,8 +140,8 @@ class MovieViewModel {
     /// Action -> Mutation
     func refreshControlPulled() {
         currentPage = 1
-        movies.removeAll()
-        fetchMovieData()
+//        movies.removeAll()
+//        fetchMovieData()
     }
     
     func numberOfMovies() -> Int {
