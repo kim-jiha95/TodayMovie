@@ -8,13 +8,12 @@
 import UIKit
 import Combine
 
-final class ImageCacheManager {
-    static let shared = ImageCacheManager()
-    
-    private let cache = NSCache<NSString, UIImage>()
+// 이미지 로드를 담당하는 클래스
+final class ImageLoadManager {
+    static let shared = ImageLoadManager()
     
     private var latestTask: URLSessionDataTask?
-    private let session: URLSession = {
+    let session: URLSession = {
         let sessionConfiguration: URLSessionConfiguration = {
             let configuration = URLSessionConfiguration.default
             configuration.requestCachePolicy = .reloadIgnoringCacheData
@@ -23,29 +22,20 @@ final class ImageCacheManager {
         let session =  URLSession(configuration: sessionConfiguration)
         return session
     }()
+    
     private init() {}
-    
-    func loadCachedData(for key: String) -> UIImage? {
-        let itemURL = NSString(string: key)
-        return cache.object(forKey: itemURL)
-    }
-    
-    func setCacheData(of image: UIImage, for key: String) {
-        let itemURL = NSString(string: key)
-        cache.setObject(image, forKey: itemURL)
-    }
     
     func cancelDownloadTask() {
         latestTask?.cancel()
     }
     
-    func setImage(url urlString: String, completion: @escaping (UIImage?) -> Void) {
+    func loadImage(url urlString: String, completion: @escaping (UIImage?) -> Void) {
         guard urlString.contains("https"), let url = URL(string: urlString) else {
             let defaultImage = UIImage(named: "https://picsum.photos/100/100")
                     completion(defaultImage)
-            return 
+            return
         }
-        /// 얘도 네트워크쪽 코드를 사용해서 쓰면 좋을 것 같긴 한데...
+        
         latestTask = session.dataTask(with: url, completionHandler: { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -59,10 +49,53 @@ final class ImageCacheManager {
                     completion(nil)
                     return
                 }
-                ImageCacheManager.shared.setCacheData(of: image, for: url.absoluteString)
+                
                 completion(image)
             }
         })
         latestTask?.resume()
     }
 }
+
+// 이미지 캐시를 담당하는 actor
+actor ImageCacheManager {
+    static let shared = ImageCacheManager()
+        
+        private let cache = NSCache<NSString, UIImage>()
+        private let fileManager = FileManager.default
+        private let cacheDirectoryURL: URL
+        
+        private init() {
+            let urls = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+            cacheDirectoryURL = urls[0].appendingPathComponent("imageCache")
+            try? fileManager.createDirectory(at: cacheDirectoryURL, withIntermediateDirectories: true)
+        }
+
+    func loadCachedImage(for key: String) async -> UIImage? {
+        let itemURL = NSString(string: key)
+        
+        if let image = cache.object(forKey: itemURL) {
+            return image
+        }
+        
+        let fileURL = cacheDirectoryURL.appendingPathComponent(key)
+        if let data = try? Data(contentsOf: fileURL), let image = UIImage(data: data) {
+            return image
+        }
+        
+        return nil
+    }
+    
+    func cacheImage(_ image: UIImage, for key: String) async {
+        let itemURL = NSString(string: key)
+        
+        cache.setObject(image, forKey: itemURL)
+        
+        let fileURL = cacheDirectoryURL.appendingPathComponent(key)
+        if let data = image.jpegData(compressionQuality: 1.0) {
+            try? data.write(to: fileURL)
+        }
+    }
+}
+
+

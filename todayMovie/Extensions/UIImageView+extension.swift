@@ -21,13 +21,22 @@ extension UIImageView {
     
     final class ImageLoader {
         private let cacheManager = ImageCacheManager.shared
+        private let loadManager = ImageLoadManager.shared
+
 
         func loadImage(with url: String, completion: @escaping (UIImage?) -> Void) {
-            if let cachedImage = cacheManager.loadCachedData(for: url) {
-                completion(cachedImage)
-            } else {
-                cacheManager.setImage(url: url) { image in
-                    completion(image)
+            Task {
+                if let cachedImage = await self.cacheManager.loadCachedImage(for: url) {
+                    completion(cachedImage)
+                } else {
+                    self.loadManager.loadImage(url: url) { image in
+                        if let image = image {
+                            Task {
+                                await self.cacheManager.cacheImage(image, for: url)
+                            }
+                        }
+                        completion(image)
+                    }
                 }
             }
         }
