@@ -3,8 +3,6 @@
 //  todayMovie
 //
 //  Created by Jihaha kim on 2023/12/06.
-//
-
 import UIKit
 import OSLog
 
@@ -22,6 +20,7 @@ extension UIImageView {
     final class ImageLoader {
         private let cacheManager = ImageCacheManager.shared
         private let loadManager = ImageLoadManager.shared
+        
         
         func loadImage(with url: String, completion: @escaping (UIImage?) -> Void) {
             Task {
@@ -48,12 +47,15 @@ extension UIImageView {
         indicator.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         
         ImageLoader().loadImage(with: url) { [weak self] image in
-            if let image = image {
-                // Set the image and stop the indicator
-                self?.image = image
+            DispatchQueue.main.async {
+                
+                if let image = image {
+                    // Set the image and stop the indicator
+                    self?.image = image
+                }
+                indicator.stopAnimating()
             }
-            indicator.stopAnimating()
         }
+    
     }
-
 }

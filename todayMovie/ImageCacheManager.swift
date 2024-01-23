@@ -8,7 +8,6 @@
 import UIKit
 import Combine
 
-// 이미지 로드를 담당하는 클래스
 final class ImageLoadManager {
     static let shared = ImageLoadManager()
     

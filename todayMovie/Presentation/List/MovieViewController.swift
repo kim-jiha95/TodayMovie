@@ -163,6 +163,13 @@ extension MovieViewController: UITableViewDelegate {
         let movieDetailViewController = MovieDetailViewController(movie: selectedMovie)
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
+    func tableView(
+            _ tableView: UITableView,
+            willDisplay cell: UITableViewCell,
+            forRowAt indexPath: IndexPath
+        ) {
+            viewModel.willDisplay(rowAt: indexPath)
+        }
 }
 
 protocol NetworkFailureHandlingDelegate: AnyObject {
