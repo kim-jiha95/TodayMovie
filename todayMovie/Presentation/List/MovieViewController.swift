@@ -90,13 +90,28 @@ final class MovieViewController: UIViewController {
 //            }
 //            .store(in: &cancellables)
         
+//        viewModel.movieUpdatehandler = { [weak self] movies in
+//            guard let self else { return }
+//            var snapshot: SnapShot = self.dataSource.snapshot() // 기존 snapshot [1, 2, 3, 4, 5]
+//            print(movies, "movies")
+//            snapshot.appendItems(movies) // 새로 더해질 무비의 배열 movies [6, 7, 8, 9, 10]
+//            // 바뀐 snapshot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+//            self.dataSource.apply(snapshot) // dataSource가 알아서 비교해서 더해줘요
+//        }
         viewModel.movieUpdatehandler = { [weak self] movies in
             guard let self else { return }
-            var snapshot: SnapShot = self.dataSource.snapshot() // 기존 snapshot [1, 2, 3, 4, 5]
-            snapshot.appendItems(movies) // 새로 더해질 무비의 배열 movies [6, 7, 8, 9, 10]
-            // 바뀐 snapshot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-            self.dataSource.apply(snapshot) // dataSource가 알아서 비교해서 더해줘요
+            var snapshot: SnapShot = self.dataSource.snapshot() // 현재 snapshot [1, 2, 3, 4, 5]
+
+            let newMoviesToAdd = movies.filter { movie in
+                !snapshot.itemIdentifiers.contains { $0 == movie }
+            }
+            
+            // snapshot과 중복을 피해서 새로 추가될 영화만 더함
+            snapshot.appendItems(newMoviesToAdd)
+            
+            self.dataSource.apply(snapshot)
         }
+
         
         viewModel.errorHandler = { error in
             // 구현
@@ -168,6 +183,7 @@ extension MovieViewController: UITableViewDelegate {
             willDisplay cell: UITableViewCell,
             forRowAt indexPath: IndexPath
         ) {
+            // viewModel Bind
             viewModel.willDisplay(rowAt: indexPath)
         }
 }
