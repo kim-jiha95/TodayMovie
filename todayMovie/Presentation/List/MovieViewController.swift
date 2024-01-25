@@ -48,7 +48,7 @@ final class MovieViewController: UIViewController {
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reusableIdentifier)
-//        tableView.dataSource = self
+        //        tableView.dataSource = self
         tableView.delegate = self
         searchBar.delegate = self
         refreshControl.addTarget(self, action: #selector(refreshControlPulled), for: .valueChanged)
@@ -74,34 +74,10 @@ final class MovieViewController: UIViewController {
     }
     
     private func bindViewModel() {
-//        viewModel.$movies
-//            .print()
-//            .removeDuplicates()
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] movies in
-//                guard let self else { return }
-//                
-//                var snapshot = NSDiffableDataSourceSnapshot<Section, Movie>() // [] -> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-//                snapshot.appendSections([.main]) // [1, 2, 3, 4, 5]
-//                snapshot.appendItems(movies)
-//                self.dataSource.apply(snapshot, animatingDifferences: true) // [1, 2, 3, 4, 5]
-//                
-//                self.refreshControl.endRefreshing()
-//            }
-//            .store(in: &cancellables)
-        
-//        viewModel.movieUpdatehandler = { [weak self] movies in
-//            guard let self else { return }
-//            var snapshot: SnapShot = self.dataSource.snapshot() // 기존 snapshot [1, 2, 3, 4, 5]
-//            print(movies, "movies")
-//            snapshot.appendItems(movies) // 새로 더해질 무비의 배열 movies [6, 7, 8, 9, 10]
-//            // 바뀐 snapshot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-//            self.dataSource.apply(snapshot) // dataSource가 알아서 비교해서 더해줘요
-//        }
         viewModel.movieUpdatehandler = { [weak self] movies in
             guard let self else { return }
             var snapshot: SnapShot = self.dataSource.snapshot() // 현재 snapshot [1, 2, 3, 4, 5]
-
+            
             let newMoviesToAdd = movies.filter { movie in
                 !snapshot.itemIdentifiers.contains { $0 == movie }
             }
@@ -111,12 +87,29 @@ final class MovieViewController: UIViewController {
             
             self.dataSource.apply(snapshot)
         }
-
         
-        viewModel.errorHandler = { error in
-            // 구현
+        viewModel.errorHandler = { [weak self] error in
+            guard let self = self else { return }
+            self.handleCommonError(error)
         }
     }
+    private func handleCommonError(_ error: Error) {
+        DispatchQueue.main.async {
+            let message: String
+            switch error {
+            case NetworkError.noConnection:
+                message = "No network connection."
+            case NetworkError.timeout:
+                message = "Request timed out."
+            case NetworkError.other(let description):
+                message = "Network error: \(description)"
+            default:
+                message = "Error occurred: \(error.localizedDescription)"
+            }
+            AlertManager.showErrorAlert(in: self, "Error Message", message)
+        }
+    }
+    
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -141,35 +134,6 @@ final class MovieViewController: UIViewController {
     }
 }
 
-// datasource -> diffable datasource
-//extension MovieViewController: UITableViewDataSource {
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        guard
-//            let cell = tableView.dequeueReusableCell(
-//                withIdentifier: MovieCell.reusableIdentifier,
-//                for: indexPath
-//            ) as? MovieCell
-//        else { return UITableViewCell() }
-//        let briefRank = indexPath.row
-//        guard let movie = viewModel.movies[safe: indexPath.row]
-//        else { return cell }
-//        cell.configure(with: movie, briefRank: briefRank)
-//        return cell
-//    }
-//    
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        return viewModel.movies.count
-//    }
-//    
-//    func tableView(
-//        _ tableView: UITableView,
-//        willDisplay cell: UITableViewCell,
-//        forRowAt indexPath: IndexPath
-//    ) {
-//        viewModel.willDisplay(rowAt: indexPath)
-//    }
-//}
-
 extension MovieViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -179,13 +143,13 @@ extension MovieViewController: UITableViewDelegate {
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
     func tableView(
-            _ tableView: UITableView,
-            willDisplay cell: UITableViewCell,
-            forRowAt indexPath: IndexPath
-        ) {
-            // viewModel Bind
-            viewModel.willDisplay(rowAt: indexPath)
-        }
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        // viewModel Bind
+        viewModel.willDisplay(rowAt: indexPath)
+    }
 }
 
 protocol NetworkFailureHandlingDelegate: AnyObject {
@@ -211,6 +175,9 @@ extension NetworkFailureHandlingDelegate where Self: UIViewController {
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
+    }
+    func handleNetworkFailure(_ error: Error, retryHandler: @escaping () -> Void, cancelHandler: @escaping () -> Void) {
+        showNetworkFailureAlert(retryHandler: retryHandler, cancelHandler: cancelHandler)
     }
 }
 
