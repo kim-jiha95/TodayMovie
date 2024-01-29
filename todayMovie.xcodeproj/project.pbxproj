@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		033E64E92AF3CEA60035DAAA /* Sample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033E64E82AF3CEA60035DAAA /* Sample.swift */; };
 		405C8FC72B555992005595B6 /* MovieTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405C8FC52B555983005595B6 /* MovieTest.swift */; };
+		40670BC22B67CB8800EA1C96 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40670BC12B67CB8800EA1C96 /* ImageLoader.swift */; };
+		40670BC42B67CBCA00EA1C96 /* RemoteImageLoadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40670BC32B67CBCA00EA1C96 /* RemoteImageLoadManager.swift */; };
 		40710ED32B5E8D3800403E2A /* Memos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40710ED22B5E8D3800403E2A /* Memos.swift */; };
 		40C83F982B0B7B3C0062E76E /* JHRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40C83F972B0B7B3C0062E76E /* JHRequest.swift */; };
 		40C83F9A2B0B84910062E76E /* ParameterEncoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40C83F992B0B84910062E76E /* ParameterEncoding.swift */; };
@@ -50,6 +52,8 @@
 /* Begin PBXFileReference section */
 		033E64E82AF3CEA60035DAAA /* Sample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sample.swift; sourceTree = "<group>"; };
 		405C8FC52B555983005595B6 /* MovieTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTest.swift; sourceTree = "<group>"; };
+		40670BC12B67CB8800EA1C96 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		40670BC32B67CBCA00EA1C96 /* RemoteImageLoadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImageLoadManager.swift; sourceTree = "<group>"; };
 		40710ED22B5E8D3800403E2A /* Memos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memos.swift; sourceTree = "<group>"; };
 		40C83F972B0B7B3C0062E76E /* JHRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JHRequest.swift; sourceTree = "<group>"; };
 		40C83F992B0B84910062E76E /* ParameterEncoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParameterEncoding.swift; sourceTree = "<group>"; };
@@ -115,6 +119,16 @@
 				405C8FC52B555983005595B6 /* MovieTest.swift */,
 			);
 			path = MovieTests;
+			sourceTree = "<group>";
+		};
+		40670BC02B67CB7C00EA1C96 /* ImageCache */ = {
+			isa = PBXGroup;
+			children = (
+				9F3EB3F32B1F888100351D33 /* ImageCacheManager.swift */,
+				40670BC12B67CB8800EA1C96 /* ImageLoader.swift */,
+				40670BC32B67CBCA00EA1C96 /* RemoteImageLoadManager.swift */,
+			);
+			path = ImageCache;
 			sourceTree = "<group>";
 		};
 		9F3EB3F62B1F89FF00351D33 /* Extensions */ = {
@@ -184,6 +198,7 @@
 		9F6417E32AED3CB0009C8C72 /* todayMovie */ = {
 			isa = PBXGroup;
 			children = (
+				40670BC02B67CB7C00EA1C96 /* ImageCache */,
 				40710ED22B5E8D3800403E2A /* Memos.swift */,
 				9F3EB3FA2B1F8C4B00351D33 /* App */,
 				9F3EB3F92B1F8C0E00351D33 /* Presentation */,
@@ -191,7 +206,6 @@
 				9FBBF48C2B0A515E001F9477 /* Error */,
 				033E64E72AF3C2370035DAAA /* Model */,
 				9F6D46DC2AF1659C001C2186 /* Network */,
-				9F3EB3F32B1F888100351D33 /* ImageCacheManager.swift */,
 				9F6417F02AED3CB1009C8C72 /* Assets.xcassets */,
 				9F6417F52AED3CB1009C8C72 /* Info.plist */,
 				9F6417ED2AED3CB0009C8C72 /* todayMovie.xcdatamodeld */,
@@ -344,6 +358,7 @@
 				9FBBF48E2B0A517D001F9477 /* NetworkManagerError.swift in Sources */,
 				9FBBF49C2B0A54A6001F9477 /* AlertManager.swift in Sources */,
 				9F6417EF2AED3CB0009C8C72 /* todayMovie.xcdatamodeld in Sources */,
+				40670BC22B67CB8800EA1C96 /* ImageLoader.swift in Sources */,
 				9F2F28452B31B302000A056E /* Cell + Extension.swift in Sources */,
 				40C83FA32B1610CE0062E76E /* NetworkConstant.swift in Sources */,
 				9F6D46DE2AF16710001C2186 /* Movie.swift in Sources */,
@@ -365,6 +380,7 @@
 				9F6417E72AED3CB0009C8C72 /* SceneDelegate.swift in Sources */,
 				9F3EB3F82B1F8A2600351D33 /* UIImageView+extension.swift in Sources */,
 				40C83FA02B0B89430062E76E /* NetworkClient.swift in Sources */,
+				40670BC42B67CBCA00EA1C96 /* RemoteImageLoadManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
