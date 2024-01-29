@@ -64,7 +64,7 @@ final class MovieViewController: UIViewController {
                 ) as? MovieCell
             else { return UITableViewCell() }
             let briefRank = indexPath.row
-            cell.configure(with: movie, briefRank: briefRank)
+            cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
             return cell
         }
         var snapshot = SnapShot()
@@ -144,7 +144,7 @@ extension MovieViewController: UITableViewDelegate {
     }
     func tableView(
         _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
+        willDisplaycell: UITableViewCell,
         forRowAt indexPath: IndexPath
     ) {
         // viewModel Bind
