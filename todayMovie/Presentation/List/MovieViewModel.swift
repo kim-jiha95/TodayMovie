@@ -30,6 +30,7 @@ final class MovieViewModel {
     
     var movies: [Movie] = []
     var movieUpdatehandler: (([Movie]) -> Void)?
+    var searchUpdateHandler: (([Movie]) -> Void)?
     var errorHandler: ((Error) -> Void)?
     
     // MARK: Private Property
@@ -61,6 +62,11 @@ final class MovieViewModel {
         self.searchText = searchText
     }
     
+    func fetchNextPage() {
+        currentPage += 1
+        fetchMovieData()
+    }
+
     func searchBarSearchButtonClicked() {
         guard !searchText.isEmpty else {
             // Handle empty search text
@@ -107,34 +113,24 @@ final class MovieViewModel {
     
     private func handleNetworkResult(_ result: Result<MovieData, Error>) {
         switch result {
-            //        case let .success(movieData):
-            //            let newMovies = movieData.results
-            //            if currentPage == Constant.startPage {
-            //                movies = newMovies
-            //                movieUpdatehandler?(newMovies)
-            //            } else {
-            //                movies.append(contentsOf: newMovies)
-            //                movieUpdatehandler?(newMovies)
-            //            }
-            //            currentPage += 1
-            //
-            //        case let .failure(error):
-            //            delegate?.handleNetworkFailure(error, retryHandler: {
-            //                self.fetchMovieData()
-            //            }, cancelHandler: {
-            //                // user click cancel
-            //            })
-            //        }
-        case .success(let movieData):
-            // Update movies with new data
-            self.movies = movieData.results
-            // Notify delegate or update UI
-            movieUpdatehandler?(self.movies)
-        case .failure(let error):
-            // Handle error, show alert or retry
-            errorHandler?(error)
-        }
-        
+                    case let .success(movieData):
+                        let newMovies = movieData.results
+                        if currentPage == Constant.startPage {
+                            movies = newMovies
+                            movieUpdatehandler?(newMovies)
+                        } else {
+                            movies.append(contentsOf: newMovies)
+                            movieUpdatehandler?(newMovies)
+                        }
+                        currentPage += 1
+            
+                    case let .failure(error):
+                        delegate?.handleNetworkFailure(error, retryHandler: {
+                            self.fetchMovieData()
+                        }, cancelHandler: {
+                            // user click cancel
+                        })
+                    }
     }
     
     private func clear() {

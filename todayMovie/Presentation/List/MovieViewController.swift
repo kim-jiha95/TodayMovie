@@ -48,7 +48,6 @@ final class MovieViewController: UIViewController {
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
         tableView.register(MovieCell.self, forCellReuseIdentifier: MovieCell.reusableIdentifier)
-        //        tableView.dataSource = self
         tableView.delegate = self
         searchBar.delegate = self
         refreshControl.addTarget(self, action: #selector(refreshControlPulled), for: .valueChanged)
@@ -72,25 +71,34 @@ final class MovieViewController: UIViewController {
         datasource.apply(snapshot)
         return datasource
     }
-    
-    private func bindViewModel() {
-        viewModel.movieUpdatehandler = { [weak self] movies in
-            guard let self else { return }
-            var snapshot: SnapShot = NSDiffableDataSourceSnapshot<MovieViewController.Section, Movie>()
-            snapshot.appendSections([.main])
-            snapshot.appendItems(movies)
 
-            DispatchQueue.main.async {
-                self.dataSource.apply(snapshot, animatingDifferences: true)
+    private func bindViewModel() {
+        // todo : reloadData 성능 체크
+        viewModel.movieUpdatehandler = { [weak self] movies in
+            guard let self = self else { return }
+            
+            if let searchText = self.searchBar.text, !searchText.isEmpty {
+                let filteredMovies = movies.filter { $0.title.contains(searchText) }
+                self.handleMovieUpdate(filteredMovies, isSearch: true)
+            } else {
+                self.handleMovieUpdate(movies, isSearch:false)
             }
         }
+    }
+    
+    private func handleMovieUpdate(_ movies: [Movie], isSearch: Bool) {
+        var snapshot = dataSource.snapshot()
+        if(isSearch){
+            snapshot.deleteAllItems()
+            snapshot.appendSections([.main])
+        }
+        snapshot.appendItems(movies, toSection: .main)
         
-        viewModel.errorHandler = { [weak self] error in
-            guard let self = self else { return }
-            print("Error occurred: \(error)")
-            self.handleCommonError(error)
+        DispatchQueue.main.async {
+            self.dataSource.apply(snapshot, animatingDifferences: true)
         }
     }
+   
     private func handleCommonError(_ error: Error) {
         DispatchQueue.main.async {
             let message: String
@@ -140,9 +148,24 @@ extension MovieViewController: UITableViewDelegate {
         let movieDetailViewController = MovieDetailViewController(movie: selectedMovie)
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
+    
+    private func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            guard
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: MovieCell.reusableIdentifier,
+                    for: indexPath
+                ) as? MovieCell,
+                let movie = dataSource.itemIdentifier(for: indexPath)
+            else { return UITableViewCell() }
+            
+            let briefRank = indexPath.row
+            cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
+            return cell
+        }
+
     func tableView(
         _ tableView: UITableView,
-        willDisplaycell: UITableViewCell,
+        willDisplay willDisplaycell: UITableViewCell,
         forRowAt indexPath: IndexPath
     ) {
         // viewModel Bind
@@ -195,3 +218,16 @@ extension MovieViewController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
     }
 }
+
+extension MovieViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.size.height
+
+        if offsetY > contentHeight - height {
+            viewModel.fetchNextPage()
+        }
+    }
+}
+
