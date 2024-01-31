@@ -62,6 +62,11 @@ final class MovieViewModel {
     }
     
     func searchBarSearchButtonClicked() {
+        guard !searchText.isEmpty else {
+            // Handle empty search text
+            return
+        }
+        
         clear()
         networkClient.request(
             endpoint: Endpoint.Movie.search(query: searchText, page: currentPage),
@@ -102,24 +107,34 @@ final class MovieViewModel {
     
     private func handleNetworkResult(_ result: Result<MovieData, Error>) {
         switch result {
-        case let .success(movieData):
-            let newMovies = movieData.results
-            if currentPage == Constant.startPage {
-                movies = newMovies
-                movieUpdatehandler?(newMovies)
-            } else {
-                movies.append(contentsOf: newMovies)
-                movieUpdatehandler?(newMovies)
-            }
-            currentPage += 1
-            
-        case let .failure(error):
-            delegate?.handleNetworkFailure(error, retryHandler: {
-                self.fetchMovieData()
-            }, cancelHandler: {
-                // user click cancel
-            })
+            //        case let .success(movieData):
+            //            let newMovies = movieData.results
+            //            if currentPage == Constant.startPage {
+            //                movies = newMovies
+            //                movieUpdatehandler?(newMovies)
+            //            } else {
+            //                movies.append(contentsOf: newMovies)
+            //                movieUpdatehandler?(newMovies)
+            //            }
+            //            currentPage += 1
+            //
+            //        case let .failure(error):
+            //            delegate?.handleNetworkFailure(error, retryHandler: {
+            //                self.fetchMovieData()
+            //            }, cancelHandler: {
+            //                // user click cancel
+            //            })
+            //        }
+        case .success(let movieData):
+            // Update movies with new data
+            self.movies = movieData.results
+            // Notify delegate or update UI
+            movieUpdatehandler?(self.movies)
+        case .failure(let error):
+            // Handle error, show alert or retry
+            errorHandler?(error)
         }
+        
     }
     
     private func clear() {

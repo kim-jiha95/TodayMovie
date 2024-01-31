@@ -76,20 +76,18 @@ final class MovieViewController: UIViewController {
     private func bindViewModel() {
         viewModel.movieUpdatehandler = { [weak self] movies in
             guard let self else { return }
-            var snapshot: SnapShot = self.dataSource.snapshot() // 현재 snapshot [1, 2, 3, 4, 5]
-            
-            let newMoviesToAdd = movies.filter { movie in
-                !snapshot.itemIdentifiers.contains { $0 == movie }
+            var snapshot: SnapShot = NSDiffableDataSourceSnapshot<MovieViewController.Section, Movie>()
+            snapshot.appendSections([.main])
+            snapshot.appendItems(movies)
+
+            DispatchQueue.main.async {
+                self.dataSource.apply(snapshot, animatingDifferences: true)
             }
-            
-            // snapshot과 중복을 피해서 새로 추가될 영화만 더함
-            snapshot.appendItems(newMoviesToAdd)
-            
-            self.dataSource.apply(snapshot)
         }
         
         viewModel.errorHandler = { [weak self] error in
             guard let self = self else { return }
+            print("Error occurred: \(error)")
             self.handleCommonError(error)
         }
     }
