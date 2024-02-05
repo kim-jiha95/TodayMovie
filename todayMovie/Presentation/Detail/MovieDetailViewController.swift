@@ -92,6 +92,8 @@ final class MovieDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         configureUI()
+        self.navigationController?.navigationBar.tintColor = .black
+        self.navigationController?.navigationBar.topItem?.title = "뒤로가기"
     }
     
     private func configureUI() {
