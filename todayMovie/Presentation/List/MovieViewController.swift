@@ -25,7 +25,7 @@ final class MovieViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
-    private lazy var dataSource: DataSource = makeDataSource()
+    private lazy var dataSource: DataSource = makeDataSource(movies: [])
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,7 +54,7 @@ final class MovieViewController: UIViewController {
         tableView.refreshControl = refreshControl
     }
     
-    private func makeDataSource() -> DataSource {
+    private func makeDataSource(movies: [Movie]) -> DataSource {
         let datasource = DataSource(tableView: tableView) { tableView, indexPath, movie -> UITableViewCell? in
             guard
                 let cell = tableView.dequeueReusableCell(
@@ -66,14 +66,42 @@ final class MovieViewController: UIViewController {
             cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
             return cell
         }
+        
         var snapshot = SnapShot()
         snapshot.appendSections([.main])
-        datasource.apply(snapshot)
+        
+        let uniqueMovies = removeDuplicates(from: movies)
+        snapshot.appendItems(uniqueMovies, toSection: .main)
+        
+        datasource.apply(snapshot, animatingDifferences: true)
+        
         return datasource
     }
 
+    private func handleMovieUpdate(_ movies: [Movie], isSearch: Bool) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            var snapshot = self.dataSource.snapshot()
+
+            let uniqueMovies = self.removeDuplicates(from: movies)
+            let existingItems = snapshot.itemIdentifiers
+            let newItems = uniqueMovies.filter { !existingItems.contains($0) }
+
+            snapshot.appendItems(newItems, toSection: .main)
+
+            if isSearch, let searchText = self.searchBar.text, !searchText.isEmpty {
+                let filteredItems = snapshot.itemIdentifiers.filter { $0.title.contains(searchText) }
+                snapshot.deleteAllItems()
+                snapshot.appendSections([.main])
+                snapshot.appendItems(filteredItems, toSection: .main)
+            }
+
+            self.dataSource.apply(snapshot, animatingDifferences: !isSearch)
+        }
+    }
+
     private func bindViewModel() {
-        // todo : reloadData 성능 체크
         viewModel.movieUpdatehandler = { [weak self] movies in
             guard let self = self else { return }
             
@@ -81,24 +109,25 @@ final class MovieViewController: UIViewController {
                 let filteredMovies = movies.filter { $0.title.contains(searchText) }
                 self.handleMovieUpdate(filteredMovies, isSearch: true)
             } else {
-                self.handleMovieUpdate(movies, isSearch:false)
+                self.handleMovieUpdate(movies, isSearch: false)
             }
         }
     }
+
     
-    private func handleMovieUpdate(_ movies: [Movie], isSearch: Bool) {
-        var snapshot = dataSource.snapshot()
-        if(isSearch){
-            snapshot.deleteAllItems()
-            snapshot.appendSections([.main])
-        }
-        snapshot.appendItems(movies, toSection: .main)
+    private func removeDuplicates(from movies: [Movie]) -> [Movie] {
+        var uniqueMovies: [Movie] = []
+        var movieIDs: Set<Int> = []
         
-        DispatchQueue.main.async {
-            self.dataSource.apply(snapshot, animatingDifferences: true)
+        for movie in movies {
+            if !movieIDs.contains(movie.id) {
+                uniqueMovies.append(movie)
+                movieIDs.insert(movie.id)
+            }
         }
+        return uniqueMovies
     }
-   
+    
     private func handleCommonError(_ error: Error) {
         DispatchQueue.main.async {
             let message: String
@@ -150,19 +179,19 @@ extension MovieViewController: UITableViewDelegate {
     }
     
     private func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            guard
-                let cell = tableView.dequeueReusableCell(
-                    withIdentifier: MovieCell.reusableIdentifier,
-                    for: indexPath
-                ) as? MovieCell,
-                let movie = dataSource.itemIdentifier(for: indexPath)
-            else { return UITableViewCell() }
-            
-            let briefRank = indexPath.row
-            cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
-            return cell
-        }
-
+        guard
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: MovieCell.reusableIdentifier,
+                for: indexPath
+            ) as? MovieCell,
+            let movie = dataSource.itemIdentifier(for: indexPath)
+        else { return UITableViewCell() }
+        
+        let briefRank = indexPath.row
+        cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
+        return cell
+    }
+    
     func tableView(
         _ tableView: UITableView,
         willDisplay willDisplaycell: UITableViewCell,
@@ -224,7 +253,7 @@ extension MovieViewController: UIScrollViewDelegate {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let height = scrollView.frame.size.height
-
+        
         if offsetY > contentHeight - height {
             viewModel.fetchNextPage()
         }
@@ -236,6 +265,6 @@ extension MovieViewController: UIScrollViewDelegate {
             viewModel.refreshControlPulled()
         }
     }
-
+    
 }
 
