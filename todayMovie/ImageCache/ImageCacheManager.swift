@@ -90,5 +90,47 @@ class ImageCacheManager {
         default:
             return
         }
-    } 
+    }
+    func loadCachedImage(for key: String, cacheType: ImageCachType) -> UIImage? {
+            switch cacheType {
+            case .none:
+                return nil
+                
+            case .memory:
+                return memoryStorage.loadCachedImage(for: key)
+                
+            case .disk:
+                return diskStorage.loadCachedImage(for: key)
+                
+            case .all:
+                if let image = memoryStorage.loadCachedImage(for: key) {
+                    return image
+                }
+                return diskStorage.loadCachedImage(for: key)
+                
+            default:
+                return nil
+            }
+        }
+    func cacheImage(_ image: UIImage, for key: String, cacheType: ImageCachType) {
+            switch cacheType {
+            case .none:
+                return
+                
+            case .memory:
+                memoryStorage.cacheImage(image, for: key)
+                
+            case .disk:
+                diskStorage.cacheImage(image, for: key)
+                
+            case .all:
+                memoryStorage.cacheImage(image, for: key)
+                diskStorage.cacheImage(image, for: key)
+                
+            default:
+                return
+            }
+        }
+
+
 }

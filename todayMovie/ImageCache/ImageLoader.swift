@@ -28,16 +28,16 @@ final class ImageLoader {
         self.loadManager = loadManager
     }
     
-    func loadImage(with url: String, completion: @escaping (UIImage?) -> Void) {
-//        if let cachedImage = await self.cacheManager.loadCachedImage(for: url) {
-//            completion(cachedImage)
-//        } else {
+    func loadImage(with url: String,cacheType: ImageCachType = .all, completion: @escaping (UIImage?) -> Void) {
+        if let cachedImage = self.cacheManager.loadCachedImage(for: url, cacheType: cacheType) {
+            completion(cachedImage)
+        } else {
             self.loadManager.loadImage(url: url) { image in
-//                if let image = image {
-//                    self.cacheManager.cacheImage(image, for: url)
-//                }
+                if let image = image {
+                    self.cacheManager.cacheImage(image, for: url, cacheType: cacheType)
+                }
                 completion(image)
-//            }
+            }
         }
     }
 }

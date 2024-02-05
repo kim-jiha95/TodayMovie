@@ -101,8 +101,6 @@ struct NetworkClient: NetworkRequestable {
             let response = response as? HTTPURLResponse, 
             200..<300 ~= response.statusCode 
         else {
-            /// 요거는 릴리즈에는 나가면 안돼요.
-            print(response)
             throw NSError(domain: "5", code: 5)
         }
     }
