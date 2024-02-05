@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 final class MovieViewController: UIViewController {
-    
+    private var isScrolledToTop: Bool = false
     private let refreshControl = UIRefreshControl()
     private let viewModel = MovieViewModel(networkClient: NetworkClient())
     private var cancellables: Set<AnyCancellable> = .init()
@@ -228,6 +228,14 @@ extension MovieViewController: UIScrollViewDelegate {
         if offsetY > contentHeight - height {
             viewModel.fetchNextPage()
         }
+        isScrolledToTop = offsetY < 0
+        handleScrollToTop()
     }
+    private func handleScrollToTop() {
+        if isScrolledToTop {
+            viewModel.refreshControlPulled()
+        }
+    }
+
 }
 
