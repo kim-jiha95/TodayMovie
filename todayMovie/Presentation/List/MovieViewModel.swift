@@ -55,6 +55,7 @@ final class MovieViewModel {
     // MARK: View에서 보내주는 Actions
     
     func viewDidLoad() {
+        print(#function)
         fetchMovieData()
     }
     
@@ -63,6 +64,7 @@ final class MovieViewModel {
     }
     
     func fetchNextPage() {
+        print(#function)
         currentPage += 1
         fetchMovieData()
     }
@@ -89,6 +91,7 @@ final class MovieViewModel {
         let currentRow: Int = indexPath.row
         let currentAmount: Int = movies.count
         guard currentRow.hasReachedThreshold(outOf: currentAmount) else { return }
+        print(#function)
         fetchMovieData()
     }
     
@@ -100,6 +103,7 @@ final class MovieViewModel {
     // MARK: Private Methods
     
     private func fetchMovieData() {
+        print(#function)
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(page: currentPage),
             for: MovieData.self
@@ -113,24 +117,24 @@ final class MovieViewModel {
     
     private func handleNetworkResult(_ result: Result<MovieData, Error>) {
         switch result {
-                    case let .success(movieData):
-                        let newMovies = movieData.results
-                        if currentPage == Constant.startPage {
-                            movies = newMovies
-                            movieUpdatehandler?(newMovies)
-                        } else {
-                            movies.append(contentsOf: newMovies)
-                            movieUpdatehandler?(newMovies)
-                        }
-                        currentPage += 1
+        case let .success(movieData):
+            let newMovies = movieData.results
+            if currentPage == Constant.startPage {
+                movies = newMovies
+                movieUpdatehandler?(newMovies)
+            } else {
+                movies.append(contentsOf: newMovies)
+                movieUpdatehandler?(newMovies)
+            }
+            currentPage += 1
             
-                    case let .failure(error):
-                        delegate?.handleNetworkFailure(error, retryHandler: {
-                            self.fetchMovieData()
-                        }, cancelHandler: {
-                            // user click cancel
-                        })
-                    }
+        case let .failure(error):
+            delegate?.handleNetworkFailure(error, retryHandler: {
+                self.fetchMovieData()
+            }, cancelHandler: {
+                // user click cancel
+            })
+        }
     }
     
     private func clear() {
@@ -139,7 +143,7 @@ final class MovieViewModel {
 }
 
 fileprivate extension Int {
-    func hasReachedThreshold(outOf count: Int, threshold: Int = 5) -> Bool {
+    func hasReachedThreshold(outOf count: Int, threshold: Int = 4) -> Bool {
         if self >= count - threshold {
             return true
         } else {

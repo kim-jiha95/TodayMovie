@@ -37,7 +37,7 @@ struct Movie: Codable, Equatable, Identifiable, Hashable {
     let adult: Bool
     let backdrop_path: String?
     let genre_ids: [Int]
-    let id: Int
+    let id: UUID = .init()
     let original_language: String
     let original_title: String
     let overview: String
@@ -54,7 +54,7 @@ struct Movie: Codable, Equatable, Identifiable, Hashable {
         case adult = "adult"
         case backdrop_path = "backdrop_path"
         case genre_ids = "genre_ids"
-        case id = "id"
+//        case id = "id"
         case original_language = "original_language"
         case original_title = "original_title"
         case overview = "overview"

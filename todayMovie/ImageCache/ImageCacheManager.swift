@@ -60,7 +60,13 @@ struct ImageCachType: OptionSet {
     static let all: ImageCachType = [.memory, .disk]
 }
 
-class ImageCacheManager {
+protocol ImageCacheManagable {
+    func cache(image: UIImage, key: String, cacheType: ImageCachType)
+    func loadCachedImage(for key: String, cacheType: ImageCachType) -> UIImage?
+}
+
+// FIXME: actor 로 구현하기
+final class ImageCacheManager: ImageCacheManagable {
     private let memoryStorage: any ImageCachable
     private let diskStorage: any ImageCachable
     
@@ -92,45 +98,24 @@ class ImageCacheManager {
         }
     }
     func loadCachedImage(for key: String, cacheType: ImageCachType) -> UIImage? {
-            switch cacheType {
-            case .none:
-                return nil
-                
-            case .memory:
-                return memoryStorage.loadCachedImage(for: key)
-                
-            case .disk:
-                return diskStorage.loadCachedImage(for: key)
-                
-            case .all:
-                if let image = memoryStorage.loadCachedImage(for: key) {
-                    return image
-                }
-                return diskStorage.loadCachedImage(for: key)
-                
-            default:
-                return nil
+        switch cacheType {
+        case .none:
+            return nil
+            
+        case .memory:
+            return memoryStorage.loadCachedImage(for: key)
+            
+        case .disk:
+            return diskStorage.loadCachedImage(for: key)
+            
+        case .all:
+            if let image = memoryStorage.loadCachedImage(for: key) {
+                return image
             }
+            return diskStorage.loadCachedImage(for: key)
+            
+        default:
+            return nil
         }
-    func cacheImage(_ image: UIImage, for key: String, cacheType: ImageCachType) {
-            switch cacheType {
-            case .none:
-                return
-                
-            case .memory:
-                memoryStorage.cacheImage(image, for: key)
-                
-            case .disk:
-                diskStorage.cacheImage(image, for: key)
-                
-            case .all:
-                memoryStorage.cacheImage(image, for: key)
-                diskStorage.cacheImage(image, for: key)
-                
-            default:
-                return
-            }
-        }
-
-
+    }
 }
