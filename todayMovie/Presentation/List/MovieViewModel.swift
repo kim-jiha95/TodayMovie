@@ -55,7 +55,6 @@ final class MovieViewModel {
     // MARK: View에서 보내주는 Actions
     
     func viewDidLoad() {
-        print(#function)
         fetchMovieData()
     }
     
@@ -64,7 +63,6 @@ final class MovieViewModel {
     }
     
     func fetchNextPage() {
-        print(#function)
         currentPage += 1
         fetchMovieData()
     }
