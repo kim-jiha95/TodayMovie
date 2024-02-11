@@ -55,6 +55,7 @@ struct Movie: Codable, Equatable, Identifiable, Hashable {
         case backdrop_path = "backdrop_path"
         case genre_ids = "genre_ids"
 //        case id = "id"
+        case id = "id"
         case original_language = "original_language"
         case original_title = "original_title"
         case overview = "overview"

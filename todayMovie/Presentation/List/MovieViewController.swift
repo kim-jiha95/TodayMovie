@@ -78,40 +78,21 @@ final class MovieViewController: UIViewController {
         return datasource
     }
     
-    /// 문제를 해결할 때,
-    /// 해결에만 급급한것 보다는
-    ///
-    /// 1. 원인을 분석하고, 찾아서
-    /// 2. 각각의 객체들의 역할과 SOLID원칙 등등 개발에 필요한 필수 항목들을 체크해서
-    ///
-    /// 3. 수정 방향을 설정하고
-    /// 4. 문제점을 수정
-    ///
-    /// 의심되는 문제점:
-    /// 1. 서버에서 id를 unique하게 주지 않는다.
-    ///     다른 영화인데, 같은 id를 쓰는 경우
-    /// 2. 뷰모델의 비지니스 로직이 잘못되서, 영화가 중첩으로 들어간다.
-    /// 3. diffableDataSource에 넣을 때 잘못 넣어서 id가 중첩으로 들어간다.
     private func handleMovieUpdate(_ movies: [Movie], isSearch: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
             var snapshot = self.dataSource.snapshot()
-            
-            //            /// 비지니스 로직
-            //            let uniqueMovies = self.removeDuplicates(from: movies)
-            //            let existingItems = snapshot.itemIdentifiers
-            //            let newItems = uniqueMovies.filter { !existingItems.contains($0) }
-            
+
             snapshot.appendItems(movies, toSection: .main)
-            
+
             if isSearch, let searchText = self.searchBar.text, !searchText.isEmpty {
                 let filteredItems = snapshot.itemIdentifiers.filter { $0.title.contains(searchText) }
                 snapshot.deleteAllItems()
                 snapshot.appendSections([.main])
                 snapshot.appendItems(filteredItems, toSection: .main)
             }
-            
+
             self.dataSource.apply(snapshot, animatingDifferences: !isSearch)
         }
     }
@@ -131,17 +112,16 @@ final class MovieViewController: UIViewController {
     
     /// 시간 복잡도 O(n)
     private func removeDuplicates(from movies: [Movie]) -> [Movie] {
-        //        var uniqueMovies: [Movie] = []
-        //        var movieIDs: Set<Int> = []
-        //
-        //        for movie in movies {
-        //            if !movieIDs.contains(movie.id) {
-        //                uniqueMovies.append(movie)
-        //                movieIDs.insert(movie.id)
-        //            }
-        //        }
-        //        return uniqueMovies
-        return movies
+        var uniqueMovies: [Movie] = []
+        var movieIDSet: Set<Int> = Set()
+
+        for movie in movies {
+            if movieIDSet.update(with: movie.id.hashValue) == nil {
+                uniqueMovies.append(movie)
+            }
+        }
+
+        return uniqueMovies
     }
     
     private func handleCommonError(_ error: Error) {
@@ -192,20 +172,6 @@ extension MovieViewController: UITableViewDelegate {
         
         let movieDetailViewController = MovieDetailViewController(movie: selectedMovie)
         navigationController?.pushViewController(movieDetailViewController, animated: true)
-    }
-    
-    private func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: MovieCell.reusableIdentifier,
-                for: indexPath
-            ) as? MovieCell,
-            let movie = dataSource.itemIdentifier(for: indexPath)
-        else { return UITableViewCell() }
-        
-        let briefRank = indexPath.row
-        cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
-        return cell
     }
     
     func tableView(

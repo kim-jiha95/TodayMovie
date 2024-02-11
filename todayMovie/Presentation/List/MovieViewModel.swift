@@ -89,7 +89,6 @@ final class MovieViewModel {
         let currentRow: Int = indexPath.row
         let currentAmount: Int = movies.count
         guard currentRow.hasReachedThreshold(outOf: currentAmount) else { return }
-        print(#function)
         fetchMovieData()
     }
     
@@ -101,7 +100,6 @@ final class MovieViewModel {
     // MARK: Private Methods
     
     private func fetchMovieData() {
-        print(#function)
         networkClient.request(
             endpoint: Endpoint.Movie.topRated(page: currentPage),
             for: MovieData.self
