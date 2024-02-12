@@ -7,6 +7,22 @@
 
 import UIKit
 
+/// let manager = RemoteImageLoadManager.shared
+/// let manager2 = RemoteImageLoadManager.shared
+/// 
+/// manager.count == 1
+/// manager.count += 1
+/// 
+/// manager1.count == 2
+/// manager2.count == 2
+/// 
+/// data -> heap
+/// 
+/// 값 타입 -> stack -> 작은 영역
+/// 참조 타입 -> heap -> 큰 영역
+/// 
+/// 싱글톤 == 하나의 인스턴스만 가지고 있겠다.
+/// Single == 1개 솔로
 final class RemoteImageLoadManager: ImageLoadable {
     static let shared = RemoteImageLoadManager()
     

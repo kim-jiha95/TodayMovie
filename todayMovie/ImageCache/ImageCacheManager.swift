@@ -67,6 +67,8 @@ protocol ImageCacheManagable {
 
 // FIXME: actor 로 구현하기
 final class ImageCacheManager: ImageCacheManagable {
+    static let shared: ImageCacheManager = .init()
+    
     private let memoryStorage: any ImageCachable
     private let diskStorage: any ImageCachable
     

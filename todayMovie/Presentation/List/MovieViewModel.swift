@@ -125,11 +125,15 @@ final class MovieViewModel {
             currentPage += 1
             
         case let .failure(error):
-            delegate?.handleNetworkFailure(error, retryHandler: {
-                self.fetchMovieData()
-            }, cancelHandler: {
-                // user click cancel
-            })
+            delegate?.handleNetworkFailure(
+                error, 
+                retryHandler: { [weak self] in 
+                    self?.fetchMovieData()
+                }, 
+                cancelHandler: {
+                    // user click cancel
+                }
+            )
         }
     }
     
