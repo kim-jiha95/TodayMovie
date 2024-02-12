@@ -14,7 +14,8 @@ final class RemoteImageLoadManager: ImageLoadable {
     let session: URLSession = {
         let sessionConfiguration: URLSessionConfiguration = {
             let configuration = URLSessionConfiguration.default
-            configuration.requestCachePolicy = .reloadIgnoringCacheData
+            configuration.requestCachePolicy = .useProtocolCachePolicy
+            configuration.urlCache = URLCache.shared
             return configuration
         }()
         let session =  URLSession(configuration: sessionConfiguration)
@@ -34,6 +35,11 @@ final class RemoteImageLoadManager: ImageLoadable {
             return
         }
         
+        if let cachedResponse = session.configuration.urlCache?.cachedResponse(for: URLRequest(url: url)), let image = UIImage(data: cachedResponse.data) {
+            completion(image)
+            return
+        }
+        
         latestTask = session.dataTask(with: url, completionHandler: { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -47,6 +53,12 @@ final class RemoteImageLoadManager: ImageLoadable {
                     completion(nil)
                     return
                 }
+                
+                if let response = response {
+                    let cachedResponse = CachedURLResponse(response: response, data: data)
+                    self.session.configuration.urlCache?.storeCachedResponse(cachedResponse, for: URLRequest(url: url))
+                }
+
                 
                 completion(image)
             }
