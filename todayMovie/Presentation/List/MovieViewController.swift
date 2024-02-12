@@ -83,16 +83,16 @@ final class MovieViewController: UIViewController {
             guard let self = self else { return }
             
             var snapshot = self.dataSource.snapshot()
-
+            
             snapshot.appendItems(movies, toSection: .main)
-
+            
             if isSearch, let searchText = self.searchBar.text, !searchText.isEmpty {
                 let filteredItems = snapshot.itemIdentifiers.filter { $0.title.contains(searchText) }
                 snapshot.deleteAllItems()
                 snapshot.appendSections([.main])
                 snapshot.appendItems(filteredItems, toSection: .main)
             }
-
+            
             self.dataSource.apply(snapshot, animatingDifferences: !isSearch)
         }
     }
@@ -114,18 +114,18 @@ final class MovieViewController: UIViewController {
     private func removeDuplicates(from movies: [Movie]) -> [Movie] {
         var uniqueMovies: [Movie] = []
         var movieIDSet: Set<Int> = Set()
-
+        
         for movie in movies {
             if movieIDSet.update(with: movie.id.hashValue) == nil {
                 uniqueMovies.append(movie)
             }
         }
-
         return uniqueMovies
     }
     
     private func handleCommonError(_ error: Error) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             let message: String
             switch error {
             case NetworkError.noConnection:
