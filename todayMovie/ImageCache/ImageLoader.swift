@@ -13,7 +13,6 @@ protocol ImageCachable {
 }
 
 protocol ImageLoadable {
-    //    func loadImage(url: String, completion: @escaping (UIImage?) -> Void)
     func loadImage(url: String) async throws -> UIImage?
 }
 

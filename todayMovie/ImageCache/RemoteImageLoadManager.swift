@@ -25,7 +25,6 @@ import UIKit
 /// Single == 1개 솔로
 final class RemoteImageLoadManager: ImageLoadable {
     
-    
     func loadImage(url: String) async throws -> UIImage? {
         guard let url = URL(string: url) else {
             throw ImageLoadError.invalidURL
@@ -58,8 +57,17 @@ final class RemoteImageLoadManager: ImageLoadable {
     func cancelDownloadTask() {
         latestTask?.cancel()
     }
-    
-    func loadImage(url: String) async throws -> UIImage {
+}
+
+enum ImageLoadError: Error {
+    case invalidURL
+    case decodingFailed
+    case missingData
+    case downloadFailed(Error)
+}
+
+extension ImageLoadable {
+    func loadImage(url: String, using session: URLSession = .shared) async throws -> UIImage? {
         guard let url = URL(string: url), url.absoluteString.hasPrefix("https") else {
             throw ImageLoadError.invalidURL
         }
@@ -83,13 +91,5 @@ final class RemoteImageLoadManager: ImageLoadable {
         } catch {
             throw ImageLoadError.downloadFailed(error)
         }
-        
     }
-}
-
-enum ImageLoadError: Error {
-    case invalidURL
-    case decodingFailed
-    case missingData
-    case downloadFailed(Error)
 }
