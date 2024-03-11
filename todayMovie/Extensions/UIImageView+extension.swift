@@ -16,20 +16,21 @@ extension UIImageView {
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         return activityIndicator
     }
-
-    func setImage(with url: String) {
+    
+    func setImage(with url: String) async {
         let indicator = self.indicator()
         addSubview(indicator)
         indicator.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
         indicator.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
         
-        ImageLoader().loadImage(with: url) { [weak self] image in
-            DispatchQueue.main.async {
-                if let image = image {
-                    self?.image = image
-                }
-                indicator.stopAnimating()
+        do {
+            let image = try await ImageLoader().loadImage(with: url)
+            if let image {
+                self.image = image
             }
+            indicator.stopAnimating()
+        } catch {
+            print("Error loading image: \(error)")
         }
     }
 }

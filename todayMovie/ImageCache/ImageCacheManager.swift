@@ -36,8 +36,8 @@ struct FileStorage: ImageCachable {
     
     func loadCachedImage(for key: String) -> UIImage? {
         let fileURL = cacheDirectoryURL.appendingPathComponent(key)
-        if let data = try? Data(contentsOf: fileURL), 
-            let image = UIImage(data: data) {
+        if let data = try? Data(contentsOf: fileURL),
+           let image = UIImage(data: data) {
             return image
         } else {
             return nil

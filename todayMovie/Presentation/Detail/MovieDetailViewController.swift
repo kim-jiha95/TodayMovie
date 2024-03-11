@@ -34,7 +34,7 @@ final class MovieDetailViewController: UIViewController {
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
-
+    
     private let subTitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
@@ -94,18 +94,32 @@ final class MovieDetailViewController: UIViewController {
         configureUI()
         self.navigationController?.navigationBar.tintColor = .black
         self.navigationItem.title = "뒤로가기"
+        Task {
+            await fetchDataAndPopulateUI()
+        }
+    }
+    
+    private func fetchDataAndPopulateUI() async {
+        let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
+        await backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? ""))
+        
+        titleLabel.text = movie.title
+        subTitleLabel.text = movie.original_title
+        descriptionLabel.text = "\(movie.overview)"
+        releaseDateLabel.text = "\(movie.releaseDate)" + "개봉"
+        starLabel.text = "평점:" + " " + formattedVoteAverage
     }
     
     private func configureUI() {
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
-
+        
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-
+            
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
@@ -120,7 +134,7 @@ final class MovieDetailViewController: UIViewController {
         stackView.addArrangedSubview(descriptionTitle)
         stackView.addArrangedSubview(descriptionLabel)
         stackView.addArrangedSubview(starLabel)
-
+        
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         subTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         releaseDateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -135,12 +149,12 @@ final class MovieDetailViewController: UIViewController {
             titleLabel.heightAnchor.constraint(equalToConstant: 50)
         ])
         
-        transferData(movie)
+        //        transferData(movie)
     }
     
-    private func transferData(_ movie: Movie) {
+    private func transferData(_ movie: Movie) async {
         let formattedVoteAverage = String(format: "%.1f", movie.voteAverage)
-        backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? ""))
+        await backgroundImageView.setImage(with: "https://image.tmdb.org/t/p/w500" + (movie.backdrop_path ?? ""))
         
         titleLabel.text = movie.title
         subTitleLabel.text = movie.original_title

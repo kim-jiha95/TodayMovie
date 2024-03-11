@@ -12,11 +12,11 @@ final class MovieCell: UITableViewCell {
     private let thumbnailImageView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFit
-        view.setContentHuggingPriority(.required, for: .horizontal)
-        view.setContentCompressionResistancePriority(.required, for: .horizontal)
+        view.clipsToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+    
     
     private let rankLabel: UILabel = {
         let rankLabel: UILabel = .init()
@@ -67,12 +67,11 @@ final class MovieCell: UITableViewCell {
             return stackView
         }()
         
-        
         let hStack: UIStackView = {
             let stackView = UIStackView(arrangedSubviews: [thumbnailImageView, vStack])
             stackView.axis = .horizontal
             stackView.alignment = .center
-            stackView.distribution = .fill
+            stackView.distribution = .fillProportionally
             stackView.spacing = 5
             stackView.translatesAutoresizingMaskIntoConstraints = false
             return stackView
@@ -104,16 +103,16 @@ final class MovieCell: UITableViewCell {
             
             vStack.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 5),
             vStack.trailingAnchor.constraint(equalTo: hStack.trailingAnchor),
+            topConstraint
         ])
-        
     }
     
     
-    func configure(with movie: Movie, briefRank: Int, isFirstCell: Bool) {
+    func configure(with movie: Movie, briefRank: Int, isFirstCell: Bool) async {
         titleLabel.text = movie.title
         descriptionLabel.text = "평점: " + movie.voteAverage.formatted
         rankLabel.text = "\(briefRank + 1)" + "위"
-        thumbnailImageView.setImage(with: "https://image.tmdb.org/t/p/w200" + (movie.posterPath ?? ""))
+        await thumbnailImageView.setImage(with: "https://image.tmdb.org/t/p/w200" + (movie.posterPath ?? ""))
         
         if isFirstCell {
             topConstraint.constant = 20

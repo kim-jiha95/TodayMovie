@@ -24,18 +24,33 @@ import UIKit
 /// 싱글톤 == 하나의 인스턴스만 가지고 있겠다.
 /// Single == 1개 솔로
 final class RemoteImageLoadManager: ImageLoadable {
-    static let shared = RemoteImageLoadManager()
     
+    
+    func loadImage(url: String) async throws -> UIImage? {
+        guard let url = URL(string: url) else {
+            throw ImageLoadError.invalidURL
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            guard let image = UIImage(data: data) else {
+                throw ImageLoadError.decodingFailed
+            }
+            
+            return image
+        } catch {
+            throw ImageLoadError.missingData
+        }
+    }
+    
+    
+    static let shared = RemoteImageLoadManager()
     private var latestTask: URLSessionDataTask?
-    let session: URLSession = {
-        let sessionConfiguration: URLSessionConfiguration = {
-            let configuration = URLSessionConfiguration.default
-            configuration.requestCachePolicy = .useProtocolCachePolicy
-            configuration.urlCache = URLCache.shared
-            return configuration
-        }()
-        let session =  URLSession(configuration: sessionConfiguration)
-        return session
+    
+    private let session: URLSession = {
+        let sessionConfiguration = URLSessionConfiguration.default
+        return URLSession(configuration: sessionConfiguration)
     }()
     
     private init() {}
@@ -44,41 +59,37 @@ final class RemoteImageLoadManager: ImageLoadable {
         latestTask?.cancel()
     }
     
-    func loadImage(url urlString: String, completion: @escaping (UIImage?) -> Void) {
-        guard urlString.contains("https"), let url = URL(string: urlString) else {
-            let defaultImage = UIImage(named: "https://picsum.photos/100/100")
-            completion(defaultImage)
-            return
+    func loadImage(url: String) async throws -> UIImage {
+        guard let url = URL(string: url), url.absoluteString.hasPrefix("https") else {
+            throw ImageLoadError.invalidURL
         }
         
-        if let cachedResponse = session.configuration.urlCache?.cachedResponse(for: URLRequest(url: url)), let image = UIImage(data: cachedResponse.data) {
-            completion(image)
-            return
+        if let cachedResponse = session.configuration.urlCache?.cachedResponse(for: URLRequest(url: url)),
+           let image = UIImage(data: cachedResponse.data) {
+            return image
         }
         
-        latestTask = session.dataTask(with: url, completionHandler: { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    print("Error downloading image: \(error)")
-                    completion(nil)
-                    return
-                }
-                
-                guard let data = data, let image = UIImage(data: data) else {
-                    print("Error converting data to image")
-                    completion(nil)
-                    return
-                }
-                
-                if let response = response {
-                    let cachedResponse = CachedURLResponse(response: response, data: data)
-                    self.session.configuration.urlCache?.storeCachedResponse(cachedResponse, for: URLRequest(url: url))
-                }
-
-                
-                completion(image)
+        do {
+            let (data, response) = try await session.data(from: url)
+            
+            guard let image = UIImage(data: data) else {
+                throw ImageLoadError.decodingFailed
             }
-        })
-        latestTask?.resume()
+            
+            let cachedResponse = CachedURLResponse(response: response, data: data)
+            session.configuration.urlCache?.storeCachedResponse(cachedResponse, for: URLRequest(url: url))
+            
+            return image
+        } catch {
+            throw ImageLoadError.downloadFailed(error)
+        }
+        
     }
+}
+
+enum ImageLoadError: Error {
+    case invalidURL
+    case decodingFailed
+    case missingData
+    case downloadFailed(Error)
 }

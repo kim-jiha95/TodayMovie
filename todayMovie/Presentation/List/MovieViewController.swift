@@ -25,6 +25,7 @@ final class MovieViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
+    
     private lazy var dataSource: DataSource = makeDataSource(movies: [])
     
     override func viewDidLoad() {
@@ -62,8 +63,12 @@ final class MovieViewController: UIViewController {
                     for: indexPath
                 ) as? MovieCell
             else { return UITableViewCell() }
+            
             let briefRank = indexPath.row
-            cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
+            Task {
+                await cell.configure(with: movie, briefRank: briefRank, isFirstCell: indexPath.row == 0)
+            }
+            
             return cell
         }
         
@@ -74,9 +79,9 @@ final class MovieViewController: UIViewController {
         snapshot.appendItems(uniqueMovies, toSection: .main)
         
         datasource.apply(snapshot, animatingDifferences: true)
-        
         return datasource
     }
+    
     
     private func handleMovieUpdate(_ movies: [Movie], isSearch: Bool) {
         DispatchQueue.main.async { [weak self] in
@@ -90,7 +95,7 @@ final class MovieViewController: UIViewController {
                 let filteredItems = snapshot.itemIdentifiers.filter { $0.title.contains(searchText) }
                 snapshot.deleteAllItems()
                 snapshot.appendSections([.main])
-                snapshot.appendItems(filteredItems, toSection: .main)
+                snapshot.appendItems(filteredItems ?? [], toSection: .main)
             }
             
             self.dataSource.apply(snapshot, animatingDifferences: !isSearch)

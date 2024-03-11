@@ -13,7 +13,8 @@ protocol ImageCachable {
 }
 
 protocol ImageLoadable {
-    func loadImage(url: String, completion: @escaping (UIImage?) -> Void)
+    //    func loadImage(url: String, completion: @escaping (UIImage?) -> Void)
+    func loadImage(url: String) async throws -> UIImage?
 }
 
 /// 면접관:
@@ -47,27 +48,28 @@ final class ImageLoader {
         self.loadManager = loadManager
     }
     
-    func loadImage(with url: String, cacheType: ImageCachType = .all, completion: @escaping (UIImage?) -> Void) {
+    func loadImage(with url: String, cacheType: ImageCachType = .all) async throws -> UIImage? {
         if let cachedImage = self.cacheManager.loadCachedImage(for: url, cacheType: cacheType) {
-            completion(cachedImage)
+            return cachedImage
         } else {
-            self.loadManager.loadImage(url: url) { image in
-                if let image {
-                    self.cacheManager.cache(image: image, key: url, cacheType: cacheType)
-                }
-                completion(image)
+            let image = try await loadManager.loadImage(url: url)
+            
+            if let image {
+                self.cacheManager.cache(image: image, key: url, cacheType: cacheType)
             }
+            return image
         }
     }
 }
 
+
 struct Home {
     /// cache -> Memory
-    func test() {
-        ImageLoader(cacheManager: ImageCacheManager()).loadImage(with: "home") { image in
-            
-        }
-    }
+    //    func test() {
+    //        ImageLoader(cacheManager: ImageCacheManager()).loadImage(with: "home") { image in
+    //            
+    //        }
+    //    }
 }
 
 struct Detail {
@@ -82,9 +84,21 @@ struct Detail {
     }
     
     /// cache -> Disk
+    
     func test() {
-        ImageLoader(cacheManager: DetailCacheManager()).loadImage(with: "home") { image in
-            
+        let imageLoader = ImageLoader(cacheManager: DetailCacheManager())
+        Task {
+            do {
+                let image = try await imageLoader.loadImage(with: "home")
+                // Use the image here (e.g., update UI)
+                if let image = image {
+                    // ... use the image
+                } else {
+                    // Handle the case where image is nil (e.g., loading failed)
+                }
+            } catch {
+                print("Error loading image: \(error)")
+            }
         }
     }
 }
